@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent" >
+
+    <ImageView
+        android:id="@+id/post_img"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:contentDescription="@string/content_description"
+        android:padding="3dp" />
+
+    <TextView
+        android:id="@+id/post_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/post_img"
+        android:layout_margin="5dp"
+        android:layout_toRightOf="@id/post_img"
+        android:text="Anonymous"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/post_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@id/post_img"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="5dp"
+        android:text="06/15/12(Fri)19:58"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/post_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/post_time"
+        android:layout_marginRight="5dp"
+        android:text="No.25529126"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/post_body"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/post_name"
+        android:layout_below="@id/post_id"
+        android:text="Hey /g/, I&apos;m going to be studying computer animation this fall and I&apos;m in the market for a new machine. http://google.com"
+        android:textSize="15sp" />
+
+</RelativeLayout>

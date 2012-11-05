@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="hello">Hello World, GActivity!</string>
+    <string name="app_name">technolo/g/y</string>
+    <string name="refresh">Refresh</string>
+    <string name="inbrowser">Open in Browser</string>
+    <string name="content_description">attatchedImage</string>
+
+</resources>
