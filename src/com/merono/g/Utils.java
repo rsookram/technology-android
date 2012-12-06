@@ -3,19 +3,35 @@ package com.merono.g;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 
 public class Utils {
 
 	private static final String TAG = "Utils";
 
-	static String loadSite(String urlToLoad) {
+	public static Bitmap getBitmapFromURL(String src) {
+		Bitmap bitmap = null;
+		try {
+			URLConnection conn = new URL(src).openConnection();
+			bitmap = BitmapFactory
+					.decodeStream((InputStream) conn.getContent());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		return bitmap;
+	}
+
+	public static String loadSite(String urlToLoad) {
 		try {
 			URL url = new URL(urlToLoad);
 			URLConnection conn = url.openConnection();
@@ -33,7 +49,7 @@ public class Utils {
 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
-			Log.e(TAG, "FileNotFoundException");
+			Log.e(TAG, "FileNotFoundException: " + urlToLoad);
 			return "nofile";
 		} catch (IOException e) {
 			e.printStackTrace();

@@ -2,10 +2,10 @@ package com.merono.g;
 
 import java.util.ArrayList;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -31,8 +31,9 @@ import com.actionbarsherlock.view.Window;
 public class ThreadActivity extends SherlockActivity {
 	private static final String TAG = "ThreadActivity";
 	public static final String URL = "";
-	ArrayList<Post> post = null;
+	ArrayList<Post> posts = null;
 	PostAdapter adapter;
+	String mBoardName;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -43,27 +44,26 @@ public class ThreadActivity extends SherlockActivity {
 
 		SharedPreferences pref = PreferenceManager
 				.getDefaultSharedPreferences(this);
-		String boardName = pref.getString("currentBoard", "g");
-		this.setTitle("/" + boardName + "/");
+		mBoardName = pref.getString("currentBoard", "g");
+		this.setTitle("/" + mBoardName + "/");
 
 		final ArrayList<Post> postsFromBefore = (ArrayList<Post>) getLastNonConfigurationInstance();
 		if (postsFromBefore == null) {
 			new LoadPosts(this).execute(getIntent().getStringExtra(URL));
 		} else {
-			post = postsFromBefore;
-			final ListView lv = (ListView) findViewById(R.id.list);
-			adapter = new PostAdapter(this, R.layout.post_item, post, null);
+			posts = postsFromBefore;
+			ListView lv = (ListView) findViewById(R.id.list);
+			adapter = new PostAdapter(this, R.layout.post_item, posts, null);
 			lv.setAdapter(adapter);
 			setupOnClickListener(this);
 
 			setSupportProgressBarIndeterminateVisibility(false);
 		}
-
 	}
 
 	@Override
 	public Object onRetainNonConfigurationInstance() {
-		return post;
+		return posts;
 	}
 
 	@Override
@@ -104,7 +104,7 @@ public class ThreadActivity extends SherlockActivity {
 	}
 
 	void refresh() {
-		post.clear();
+		posts.clear();
 		adapter.notifyDataSetChanged();
 
 		new LoadPosts(this).execute(getIntent().getStringExtra(URL));
@@ -112,7 +112,7 @@ public class ThreadActivity extends SherlockActivity {
 
 	void launchImageBrowser() {
 		ArrayList<Post> images = new ArrayList<Post>();
-		for (Post p : post) {
+		for (Post p : posts) {
 			if (!p.getImgURL().equals(""))
 				images.add(p);
 		}
@@ -163,23 +163,23 @@ public class ThreadActivity extends SherlockActivity {
 
 		@Override
 		protected ArrayList<Post> doInBackground(String... params) {
-			post = new ArrayList<Post>();
-			String entirePage = Utils.loadSite(params[0]).replaceAll(
-					"(?i)<br[^>]*>", "br2n");
-			if (entirePage.equals("error") || entirePage.equals("nofile")) {
+			String siteJson = Utils.loadSite(params[0] + ".json");
+			posts = new ArrayList<Post>();
+
+			try {
+				JSONObject object = (JSONObject) new JSONTokener(siteJson)
+						.nextValue();
+				JSONArray allPosts = object.getJSONArray("posts");
+				for (int i = 0; i < allPosts.length(); i++) {
+					posts.add(new Post(allPosts.getJSONObject(i), mBoardName));
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
 				return null;
 			}
 
-			Document doc = Jsoup.parse(entirePage);
-			Elements allPosts = doc.getElementsByClass("postContainer");
-
-			for (Element singlePost : allPosts) {
-				Post postAsPost = new Post(singlePost);
-				post.add(postAsPost);
-			}
-
 			Log.d(TAG, "finished parsing");
-			return post;
+			return posts;
 		}
 
 		@Override

@@ -3,10 +3,10 @@ package com.merono.g;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -64,18 +64,12 @@ public class GActivity extends SherlockActivity {
 			pref.edit().putString("currentBoard", mBoardName).commit();
 			this.setTitle("/" + mBoardName + "/" + " - page " + mPageNum);
 
-			String urlStr = baseUrl + mBoardName + "/";
-			if (mPageNum > 0)
-				urlStr = urlStr + Integer.toString(mPageNum);
-
+			String urlStr = "http://api.4chan.org/" + mBoardName + "/"
+					+ mPageNum + ".json";
 			new LoadThreads(this).execute(urlStr);
 		} else {
 			mBoardName = pref.getString("currentBoard", "g");
 			this.setTitle("/" + mBoardName + "/" + " - page " + mPageNum);
-
-			String urlStr = baseUrl + mBoardName + "/";
-			if (mPageNum > 0)
-				urlStr = urlStr + Integer.toString(mPageNum);
 
 			imageMap = postsFromBefore.images;
 			post = postsFromBefore.posts;
@@ -84,6 +78,7 @@ public class GActivity extends SherlockActivity {
 			setupOnItemClickListener();
 			setSupportProgressBarIndeterminateVisibility(false);
 		}
+
 	}
 
 	@Override
@@ -139,10 +134,8 @@ public class GActivity extends SherlockActivity {
 
 		this.setTitle("/" + mBoardName + "/" + " - page " + mPageNum);
 
-		String urlStr = baseUrl + mBoardName + "/";
-		if (mPageNum > 0)
-			urlStr = urlStr + Integer.toString(mPageNum);
-
+		String urlStr = "http://api.4chan.org/" + mBoardName + "/" + mPageNum
+				+ ".json";
 		new LoadThreads(this).execute(urlStr);
 	}
 
@@ -245,28 +238,21 @@ public class GActivity extends SherlockActivity {
 
 		@Override
 		protected ArrayList<Post> doInBackground(String... params) {
-			Log.d(TAG, "Starting to download page");
-			String entirePage = Utils.loadSite(params[0]).replaceAll(
-					"(?i)<br[^>]*>", "br2n");
+			String siteJson = Utils.loadSite(params[0]);
 
-			if (entirePage.equals("nofile") || entirePage.equals("error")) {
-				return post;
-			}
-
-			Document doc = Jsoup.parse(entirePage);
-			Elements allThreads = doc.getElementsByClass("opContainer");
-
-			for (Element thread : allThreads) {
-				post.add(new Post(thread));
-			}
-
-			Elements replylinks = doc.getElementsByClass("replylink");
-			int i = 0;
-			for (Element link : replylinks) {
-				if (link.text().equals("Reply")) {
-					links[i] = baseUrl + mBoardName + "/" + link.attr("href");
-					i++;
+			JSONObject object;
+			try {
+				object = (JSONObject) new JSONTokener(siteJson).nextValue();
+				JSONArray threads = object.getJSONArray("threads");
+				for (int i = 0; i < 15; i++) {
+					JSONArray posts = threads.getJSONObject(i).getJSONArray(
+							"posts");
+					post.add(new Post(posts.getJSONObject(0), mBoardName));
+					links[i] = baseUrl + mBoardName + "/res/"
+							+ posts.getJSONObject(0).getInt("no");
 				}
+			} catch (JSONException e) {
+				e.printStackTrace();
 			}
 
 			Log.d(TAG, "end parsing");
@@ -277,6 +263,7 @@ public class GActivity extends SherlockActivity {
 		protected void onPostExecute(ArrayList<Post> threads) {
 			super.onPostExecute(threads);
 
+			/*
 			if (links[0].equals("error")) {
 				Toast.makeText(getApplicationContext(),
 						"Error loading. (IOException)", Toast.LENGTH_LONG)
@@ -285,6 +272,7 @@ public class GActivity extends SherlockActivity {
 				Toast.makeText(getApplicationContext(), "Page does not exist.",
 						Toast.LENGTH_LONG).show();
 			}
+			*/
 
 			ListView lv = (ListView) findViewById(R.id.main_list);
 			imageMap = new HashMap<String, Bitmap>();

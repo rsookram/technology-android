@@ -1,6 +1,7 @@
 package com.merono.g;
 
-import org.jsoup.nodes.Element;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.util.Log;
 
@@ -14,39 +15,48 @@ public class Post {
 
 	private static final String TAG = "Post";
 
-	Post(Element postAsHtml) {
-		Element rawHtml = postAsHtml;
-		try {
-			Element bodyHtml = rawHtml.select("blockquote").first();
-			Element nameHtml = rawHtml.getElementsByClass("name").first();
-			Element timeHtml = rawHtml.getElementsByClass("dateTime").first();
+	Post(JSONObject postJSON, String boardName) {
+		body = "";
+		name = "no name";
+		time = "now";
+		id = "ぬるぽ";
 
-			body = bodyHtml.text().replaceAll("br2n ?", "\n");
-			name = nameHtml.text();
-			String[] timeAndId = timeHtml.text().split("br2n");
-			time = timeAndId[0];
-			id = timeAndId[1];
-		} catch (Exception e) {
-			Log.d(TAG, "ぬるぽ");
-			body = "Error. Reload page";
-			name = "Anonymous";
-			id = "ぬるぽ";
+		try {
+			body = postJSON.getString("com").replaceAll("<br>", "\n");
+			body = body.replaceAll("&quot;", "\"");
+			body = body.replaceAll("</?span.*?>", "");
+			body = body.replaceAll("</?a.*?>", "");
+			body = body.replaceAll("&gt;", ">");
+			body = body.replaceAll("&lt;", "<");
+			body = body.replaceAll("&amp;", "&");
+		} catch (JSONException e) {
+			e.printStackTrace();
 		}
 
 		try {
-			Element thumbHtml = rawHtml.select("img[src]").first();
-			imgUrl = "http:" + thumbHtml.attr("src");
-			fullImgUrl = "http:"
-					+ rawHtml.getElementsByClass("fileThumb").first()
-							.attr("href");
-		} catch (Exception e) {
+			name = postJSON.getString("name");
+			time = postJSON.getString("now");
+			id = "No." + postJSON.getInt("no");
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+		boolean hasImage = true;
+		try {
+			imgUrl = "http://thumbs.4chan.org/" + boardName + "/thumb/"
+					+ postJSON.getLong("tim") + "s.jpg";
+			fullImgUrl = "http://images.4chan.org/" + boardName + "/src/"
+					+ postJSON.getLong("tim") + postJSON.getString("ext");
+		} catch (JSONException e) {
 			imgUrl = "";
 			fullImgUrl = "";
+			hasImage = false;
 		}
 
-		if (!fullImgUrl.equals("")) {
-			name = name + " <Img>";
+		if (hasImage) {
+			name = name + " <img>";
 		}
+
 	}
 
 	public String getText() {

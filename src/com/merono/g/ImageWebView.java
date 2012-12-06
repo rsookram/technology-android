@@ -41,7 +41,6 @@ public class ImageWebView extends Activity {
 		img.getSettings().setLoadWithOverviewMode(true);
 		img.getSettings().setUseWideViewPort(true);
 		img.getSettings().setBuiltInZoomControls(true);
-		img.getSettings().setSupportZoom(true);
 
 		final Activity activity = this;
 		img.setWebChromeClient(new WebChromeClient() {

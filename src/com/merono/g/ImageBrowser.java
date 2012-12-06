@@ -1,19 +1,11 @@
 package com.merono.g;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.lang.ref.WeakReference;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.HashMap;
 
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -33,12 +25,12 @@ public class ImageBrowser extends SherlockActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.image_browser_layout);
+
 		thumbs = getIntent().getStringArrayExtra("com.merono.g.thumbs");
 		final String[] fullImgs = getIntent().getStringArrayExtra(
 				"com.merono.g.fullImgs");
 
 		GridView grid = (GridView) findViewById(R.id.gridview);
-
 		grid.setAdapter(new ImageAdapter(this));
 
 		final Intent intent = new Intent(this, ImageWebView.class);
@@ -99,60 +91,10 @@ public class ImageBrowser extends SherlockActivity {
 				return imageView;
 			}
 
-			BitmapWorkerTask task = new BitmapWorkerTask(imageView);
+			BitmapWorkerTask task = new BitmapWorkerTask(imageView, imageMap);
 			task.execute(thumbs[position]);
 
 			return imageView;
 		}
 	}
-
-	public static Bitmap getBitmapFromURL(String src) {
-		Bitmap bitmap = null;
-		try {
-			URLConnection conn = new URL(src).openConnection();
-			bitmap = BitmapFactory
-					.decodeStream((InputStream) conn.getContent());
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		return bitmap;
-	}
-
-	class BitmapWorkerTask extends AsyncTask<String, String, Bitmap> {
-		private final WeakReference<ImageView> imageViewReference;
-
-		public BitmapWorkerTask(ImageView imageView) {
-			// Use WeakReference to ensure imageView can be garbage collected
-			imageViewReference = new WeakReference<ImageView>(imageView);
-		}
-
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-			final ImageView imageView = imageViewReference.get();
-			imageView.setImageResource(R.drawable.ic_icon);
-		}
-
-		@Override
-		protected Bitmap doInBackground(String... params) {
-			if (!imageMap.containsKey(params[0])) {
-				imageMap.put(params[0], getBitmapFromURL(params[0]));
-			}
-
-			return imageMap.get(params[0]);
-		}
-
-		@Override
-		protected void onPostExecute(Bitmap bitmap) {
-			// Once complete, see if ImageView is still around and set bitmap.
-			if (imageViewReference != null && bitmap != null) {
-				final ImageView imageView = imageViewReference.get();
-				if (imageView != null) {
-					imageView.setImageBitmap(bitmap);
-				}
-			}
-		}
-	}
-
 }
