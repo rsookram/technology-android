@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.merono.g"
-    android:versionCode="24"
-    android:versionName="4.07" >
+    android:versionCode="25"
+    android:versionName="4.10" >
 
     <uses-sdk
-        android:minSdkVersion="8"
-        android:targetSdkVersion="14" />
+        android:minSdkVersion="14"
+        android:targetSdkVersion="16" />
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -15,8 +15,7 @@
         android:label="@string/app_name" >
         <activity
             android:name=".GActivity"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.Sherlock" >
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -25,8 +24,7 @@
         </activity>
         <activity
             android:name=".ThreadActivity"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.Sherlock" >
+            android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="com.merono.g.THREAD" />
 
@@ -44,12 +42,9 @@
         </activity>
         <activity
             android:name=".PrefsActivity"
-            android:label="Settings"
-            android:theme="@style/Theme.Sherlock" >
+            android:label="Settings" >
         </activity>
-        <activity
-            android:name=".ImageBrowser"
-            android:theme="@style/Theme.Sherlock" >
+        <activity android:name=".ImageBrowser" >
         </activity>
     </application>
 

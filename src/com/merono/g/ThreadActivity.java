@@ -10,25 +10,20 @@ import org.json.JSONTokener;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
-import com.actionbarsherlock.view.SubMenu;
-import com.actionbarsherlock.view.Window;
-
-public class ThreadActivity extends SherlockActivity {
+public class ThreadActivity extends Activity {
 	private static final String TAG = "ThreadActivity";
 	public static final String URL = "";
 	ArrayList<Post> posts = null;
@@ -57,7 +52,7 @@ public class ThreadActivity extends SherlockActivity {
 			lv.setAdapter(adapter);
 			setupOnClickListener(this);
 
-			setSupportProgressBarIndeterminateVisibility(false);
+			setProgressBarIndeterminateVisibility(false);
 		}
 	}
 
@@ -67,24 +62,24 @@ public class ThreadActivity extends SherlockActivity {
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add("Refresh").setIcon(R.drawable.ic_action_refresh)
-				.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-					public boolean onMenuItemClick(MenuItem item) {
-						refresh();
-						return true;
-					}
-				}).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+	public boolean onCreateOptionsMenu(android.view.Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.thread_menu, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
 
-		menu.add("Image Viewer").setIcon(R.drawable.ic_action_image_browser)
-		.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-			public boolean onMenuItemClick(MenuItem item) {
-				launchImageBrowser();
-				return true;
-			}
-		}).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
-
-		return true;
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.refresh:
+			refresh();
+			return true;
+		case R.id.image_browser:
+			launchImageBrowser();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
 
 	void refresh() {
@@ -142,7 +137,7 @@ public class ThreadActivity extends SherlockActivity {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			setSupportProgressBarIndeterminateVisibility(true);
+			setProgressBarIndeterminateVisibility(true);
 		}
 
 		@Override
@@ -179,7 +174,7 @@ public class ThreadActivity extends SherlockActivity {
 			} else {
 				Toast.makeText(activity, "error", Toast.LENGTH_SHORT).show();
 			}
-			setSupportProgressBarIndeterminateVisibility(false);
+			setProgressBarIndeterminateVisibility(false);
 		}
 	}
 }

@@ -2,6 +2,7 @@ package com.merono.g;
 
 import java.util.HashMap;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -13,11 +14,8 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
-import com.actionbarsherlock.app.SherlockActivity;
-
-public class ImageBrowser extends SherlockActivity {
+public class ImageBrowser extends Activity {
 	String[] thumbs;
 	private HashMap<String, Bitmap> imageMap = null;
 	private static final String TAG = "ImageBrowser";

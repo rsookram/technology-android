@@ -3,12 +3,11 @@ package com.merono.g;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
+import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-import com.actionbarsherlock.app.SherlockPreferenceActivity;
-
-public class PrefsActivity extends SherlockPreferenceActivity implements
+public class PrefsActivity extends PreferenceActivity implements
 		OnSharedPreferenceChangeListener {
 
 	@Override

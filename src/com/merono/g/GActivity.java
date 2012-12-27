@@ -19,7 +19,10 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.util.Log;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
@@ -27,14 +30,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockActivity;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
-import com.actionbarsherlock.view.MenuItem.OnMenuItemClickListener;
-import com.actionbarsherlock.view.SubMenu;
-import com.actionbarsherlock.view.Window;
-
-public class GActivity extends SherlockActivity {
+public class GActivity extends Activity {
 	static int mPageNum = 0;
 	static String mBoardName = "g";
 	static final String[] links = new String[15]; // holds the thread links
@@ -76,9 +72,8 @@ public class GActivity extends SherlockActivity {
 			adapter = new PostAdapter(this, R.layout.post_item, post, imageMap);
 			lv.setAdapter(adapter);
 			setupOnItemClickListener();
-			setSupportProgressBarIndeterminateVisibility(false);
+			setProgressBarIndeterminateVisibility(false);
 		}
-
 	}
 
 	@Override
@@ -90,42 +85,31 @@ public class GActivity extends SherlockActivity {
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add("Refresh").setIcon(R.drawable.ic_action_refresh)
-				.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-					public boolean onMenuItemClick(MenuItem item) {
-						refresh();
-						return true;
-					}
-				}).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+	public boolean onCreateOptionsMenu(android.view.Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.main_menu, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
 
-		SubMenu sub = menu.addSubMenu("Extra").setIcon(
-				R.drawable.ic_action_extra);
-		sub.add("Choose Page").setOnMenuItemClickListener(
-				new OnMenuItemClickListener() {
-					public boolean onMenuItemClick(MenuItem item) {
-						choosePage();
-						return true;
-					}
-				});
-		sub.add("Choose Board").setOnMenuItemClickListener(
-				new OnMenuItemClickListener() {
-					public boolean onMenuItemClick(MenuItem item) {
-						chooseBoard();
-						return true;
-					}
-				});
-		sub.add("Settings").setOnMenuItemClickListener(
-				new OnMenuItemClickListener() {
-					public boolean onMenuItemClick(MenuItem item) {
-						startActivity(new Intent(getApplicationContext(),
-								PrefsActivity.class));
-						return true;
-					}
-				});
-		sub.getItem().setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-
-		return true;
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.refresh:
+			refresh();
+			return true;
+		case R.id.choose_page:
+			choosePage();
+			return true;
+		case R.id.choose_board:
+			chooseBoard();
+			return true;
+		case R.id.settings:
+			startActivity(new Intent(getApplicationContext(),
+					PrefsActivity.class));
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
 
 	void refresh() {
@@ -233,7 +217,7 @@ public class GActivity extends SherlockActivity {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			setSupportProgressBarIndeterminateVisibility(true);
+			setProgressBarIndeterminateVisibility(true);
 		}
 
 		@Override
@@ -264,15 +248,13 @@ public class GActivity extends SherlockActivity {
 			super.onPostExecute(threads);
 
 			/*
-			if (links[0].equals("error")) {
-				Toast.makeText(getApplicationContext(),
-						"Error loading. (IOException)", Toast.LENGTH_LONG)
-						.show();
-			} else if (links[0].equals("nofile")) {
-				Toast.makeText(getApplicationContext(), "Page does not exist.",
-						Toast.LENGTH_LONG).show();
-			}
-			*/
+			 * if (links[0].equals("error")) {
+			 * Toast.makeText(getApplicationContext(),
+			 * "Error loading. (IOException)", Toast.LENGTH_LONG) .show(); }
+			 * else if (links[0].equals("nofile")) {
+			 * Toast.makeText(getApplicationContext(), "Page does not exist.",
+			 * Toast.LENGTH_LONG).show(); }
+			 */
 
 			ListView lv = (ListView) findViewById(R.id.main_list);
 			imageMap = new HashMap<String, Bitmap>();
@@ -281,7 +263,7 @@ public class GActivity extends SherlockActivity {
 			lv.setAdapter(adapter);
 			setupOnItemClickListener();
 
-			setSupportProgressBarIndeterminateVisibility(false);
+			setProgressBarIndeterminateVisibility(false);
 		}
 	}
 }
