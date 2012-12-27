@@ -76,29 +76,13 @@ public class ThreadActivity extends SherlockActivity {
 					}
 				}).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
-		SubMenu sub = menu.addSubMenu("Extra").setIcon(
-				R.drawable.ic_action_extra);
-
-		sub.add("Image Viewer").setOnMenuItemClickListener(
-				new OnMenuItemClickListener() {
-					public boolean onMenuItemClick(MenuItem item) {
-						launchImageBrowser();
-						return true;
-					}
-				});
-
-		sub.add("Open in Browser").setOnMenuItemClickListener(
-				new OnMenuItemClickListener() {
-					public boolean onMenuItemClick(MenuItem item) {
-						String urlToLaunch = getIntent().getStringExtra(URL);
-						Intent intent = new Intent(Intent.ACTION_VIEW, Uri
-								.parse(urlToLaunch));
-						startActivity(intent);
-						return true;
-					}
-				});
-
-		sub.getItem().setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+		menu.add("Image Viewer").setIcon(R.drawable.ic_action_image_browser)
+		.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+			public boolean onMenuItemClick(MenuItem item) {
+				launchImageBrowser();
+				return true;
+			}
+		}).setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
 		return true;
 	}
