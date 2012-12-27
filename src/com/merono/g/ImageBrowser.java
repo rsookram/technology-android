@@ -13,6 +13,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.actionbarsherlock.app.SherlockActivity;
 
@@ -79,9 +80,8 @@ public class ImageBrowser extends SherlockActivity {
 			if (convertView == null) {
 				// if it's not recycled, init some attributes
 				imageView = new ImageView(mContext);
-				imageView.setLayoutParams(new GridView.LayoutParams(160, 160));
+				imageView.setLayoutParams(new GridView.LayoutParams(240, 240));
 				imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-				imageView.setPadding(0, 0, 0, 0);
 			} else {
 				imageView = (ImageView) convertView;
 			}
