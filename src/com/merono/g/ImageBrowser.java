@@ -5,8 +5,10 @@ import java.util.HashMap;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -25,6 +27,10 @@ public class ImageBrowser extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.image_browser_layout);
 
+		SharedPreferences pref = PreferenceManager
+				.getDefaultSharedPreferences(this);
+		this.setTitle("/" + pref.getString("currentBoard", "g") + "/");
+		
 		thumbs = getIntent().getStringArrayExtra("com.merono.g.thumbs");
 		final String[] fullImgs = getIntent().getStringArrayExtra(
 				"com.merono.g.fullImgs");

@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Window;
-import android.view.WindowManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 
@@ -19,16 +18,13 @@ public class ImageWebView extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		getWindow().requestFeature(Window.FEATURE_PROGRESS);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.imageweb_layout);
 
 		SharedPreferences pref = PreferenceManager
 				.getDefaultSharedPreferences(this);
-		String boardName = pref.getString("currentBoard", "g");
-		this.setTitle("/" + boardName + "/");
+		this.setTitle("/" + pref.getString("currentBoard", "g") + "/");
 
 		// this disables the toast that shows the hint to double-tap
 		SharedPreferences prefs = getSharedPreferences(PREF_FILE,
