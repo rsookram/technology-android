@@ -16,11 +16,6 @@ public class Post {
 	private static final String TAG = "Post";
 
 	Post(JSONObject postJSON, String boardName) {
-		body = "";
-		name = "no name";
-		time = "now";
-		id = "ぬるぽ";
-
 		try {
 			body = postJSON.getString("com").replaceAll("<br>", "\n");
 			body = body.replaceAll("&quot;", "\"");
@@ -31,14 +26,29 @@ public class Post {
 			body = body.replaceAll("&amp;", "&");
 		} catch (JSONException e) {
 			e.printStackTrace();
+			body = "";
 		}
 
 		try {
 			name = postJSON.getString("name");
+		} catch (JSONException e) {
+			e.printStackTrace();
+			name = "no name";
+		}
+
+		try {
 			time = postJSON.getString("now");
+			time = time.replaceFirst("\\(.*?\\)", "  ");
+		} catch (JSONException e) {
+			e.printStackTrace();
+			time = "now";
+		}
+
+		try {
 			id = "No." + postJSON.getInt("no");
 		} catch (JSONException e) {
 			e.printStackTrace();
+			id = "id error";
 		}
 
 		boolean hasImage = true;
