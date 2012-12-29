@@ -1,7 +1,6 @@
 package com.merono.g;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -19,6 +18,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.util.Log;
+import android.util.LruCache;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,7 +34,7 @@ public class GActivity extends Activity {
 	static int mPageNum = 0;
 	static String mBoardName = "g";
 	static final String[] links = new String[15]; // holds the thread links
-	private HashMap<String, Bitmap> imageMap = null;
+	private LruCache<String, Bitmap> mMemoryCache;
 
 	private static final String baseUrl = "http://boards.4chan.org/";
 	private static final String TAG = "GActivity";
@@ -67,9 +67,10 @@ public class GActivity extends Activity {
 			mBoardName = pref.getString("currentBoard", "g");
 			this.setTitle("/" + mBoardName + "/" + " - page " + mPageNum);
 
-			imageMap = postsFromBefore.images;
+			mMemoryCache = postsFromBefore.images;
 			post = postsFromBefore.posts;
-			adapter = new PostAdapter(this, R.layout.post_item, post, imageMap);
+			adapter = new PostAdapter(this, R.layout.post_item, post,
+					mMemoryCache);
 			lv.setAdapter(adapter);
 			setupOnItemClickListener();
 			setProgressBarIndeterminateVisibility(false);
@@ -80,7 +81,7 @@ public class GActivity extends Activity {
 	public Object onRetainNonConfigurationInstance() {
 		ThreadPosts restoreValue = new ThreadPosts();
 		restoreValue.posts = post;
-		restoreValue.images = imageMap;
+		restoreValue.images = mMemoryCache;
 		return restoreValue;
 	}
 
@@ -114,7 +115,8 @@ public class GActivity extends Activity {
 
 	void refresh() {
 		post.clear();
-		adapter.notifyDataSetChanged();
+		if (adapter != null)
+			adapter.notifyDataSetChanged();
 
 		this.setTitle("/" + mBoardName + "/" + " - page " + mPageNum);
 
@@ -204,7 +206,7 @@ public class GActivity extends Activity {
 
 	class ThreadPosts {
 		ArrayList<Post> posts;
-		HashMap<String, Bitmap> images;
+		LruCache<String, Bitmap> images;
 	}
 
 	class LoadThreads extends AsyncTask<String, Void, ArrayList<Post>> {
@@ -223,11 +225,16 @@ public class GActivity extends Activity {
 		@Override
 		protected ArrayList<Post> doInBackground(String... params) {
 			String siteJson = Utils.loadSite(params[0]);
+			if (siteJson.equals("nofile") || siteJson.equals("error")) {
+				links[0] = siteJson;
+				return null;
+			}
 
-			JSONObject object;
 			try {
+				JSONObject object;
 				object = (JSONObject) new JSONTokener(siteJson).nextValue();
 				JSONArray threads = object.getJSONArray("threads");
+
 				for (int i = 0; i < 15; i++) {
 					JSONArray posts = threads.getJSONObject(i).getJSONArray(
 							"posts");
@@ -246,20 +253,32 @@ public class GActivity extends Activity {
 		@Override
 		protected void onPostExecute(ArrayList<Post> threads) {
 			super.onPostExecute(threads);
-
-			/*
-			 * if (links[0].equals("error")) {
-			 * Toast.makeText(getApplicationContext(),
-			 * "Error loading. (IOException)", Toast.LENGTH_LONG) .show(); }
-			 * else if (links[0].equals("nofile")) {
-			 * Toast.makeText(getApplicationContext(), "Page does not exist.",
-			 * Toast.LENGTH_LONG).show(); }
-			 */
+			if (links[0].equals("error")) {
+				Toast.makeText(getApplicationContext(),
+						"Error loading. (IOException)", Toast.LENGTH_LONG)
+						.show();
+				setProgressBarIndeterminateVisibility(false);
+				return;
+			} else if (links[0].equals("nofile")) {
+				Toast.makeText(getApplicationContext(), "Page does not exist.",
+						Toast.LENGTH_LONG).show();
+				setProgressBarIndeterminateVisibility(false);
+				return;
+			}
 
 			ListView lv = (ListView) findViewById(R.id.main_list);
-			imageMap = new HashMap<String, Bitmap>();
+
+			mMemoryCache = new LruCache<String, Bitmap>(
+					Utils.getCacheSize(activity)) {
+				@Override
+				protected int sizeOf(String key, Bitmap bitmap) {
+					// cache size measured in bytes
+					return bitmap.getByteCount();
+				}
+			};
+
 			adapter = new PostAdapter(activity, R.layout.post_item, threads,
-					imageMap);
+					mMemoryCache);
 			lv.setAdapter(adapter);
 			setupOnItemClickListener();
 

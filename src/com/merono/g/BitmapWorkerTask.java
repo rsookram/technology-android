@@ -1,46 +1,36 @@
 package com.merono.g;
 
-import java.lang.ref.WeakReference;
-import java.util.HashMap;
-
 import android.graphics.Bitmap;
 import android.os.AsyncTask;
+import android.util.LruCache;
 import android.widget.ImageView;
 
 public class BitmapWorkerTask extends AsyncTask<String, String, Bitmap> {
-	private final WeakReference<ImageView> imageViewReference;
-	private HashMap<String, Bitmap> imageMap = null;
+	ImageView iv;
+	private LruCache<String, Bitmap> mMemoryCache;
 
-	public BitmapWorkerTask(ImageView imageView, HashMap<String, Bitmap> image) {
-		// Use WeakReference to ensure imageView can be garbage collected
-		imageViewReference = new WeakReference<ImageView>(imageView);
-		imageMap = image;
+	public BitmapWorkerTask(ImageView imageView, LruCache<String, Bitmap> cache) {
+		iv = imageView;
+		mMemoryCache = cache;
 	}
 
 	@Override
 	protected void onPreExecute() {
 		super.onPreExecute();
-		final ImageView imageView = imageViewReference.get();
-		imageView.setImageResource(R.drawable.ic_icon);
+		iv.setImageResource(R.drawable.ic_icon);
 	}
 
 	@Override
 	protected Bitmap doInBackground(String... params) {
-		if (!imageMap.containsKey(params[0])) {
-			imageMap.put(params[0], Utils.getBitmapFromURL(params[0]));
+		final Bitmap bitmap = Utils.getBitmapFromURL(params[0]);
+		if (mMemoryCache.get(params[0]) == null) {
+			mMemoryCache.put(params[0], bitmap);
 		}
-
-		return imageMap.get(params[0]);
+		return bitmap;
 	}
 
 	@Override
 	protected void onPostExecute(Bitmap bitmap) {
-		// Once complete, see if ImageView is still around and set bitmap.
-		if (imageViewReference != null && bitmap != null) {
-			final ImageView imageView = imageViewReference.get();
-			if (imageView != null) {
-				imageView.setImageBitmap(bitmap);
-			}
-		}
+		iv.setImageBitmap(bitmap);
 	}
 }

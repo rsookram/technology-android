@@ -1,7 +1,5 @@
 package com.merono.g;
 
-import java.util.HashMap;
-
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -9,6 +7,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.LruCache;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -19,7 +18,7 @@ import android.widget.ImageView;
 
 public class ImageBrowser extends Activity {
 	String[] thumbs;
-	private HashMap<String, Bitmap> imageMap = null;
+	private LruCache<String, Bitmap> mMemoryCache;
 	private static final String TAG = "ImageBrowser";
 
 	@Override
@@ -30,7 +29,7 @@ public class ImageBrowser extends Activity {
 		SharedPreferences pref = PreferenceManager
 				.getDefaultSharedPreferences(this);
 		this.setTitle("/" + pref.getString("currentBoard", "g") + "/");
-		
+
 		thumbs = getIntent().getStringArrayExtra("com.merono.g.thumbs");
 		final String[] fullImgs = getIntent().getStringArrayExtra(
 				"com.merono.g.fullImgs");
@@ -52,7 +51,7 @@ public class ImageBrowser extends Activity {
 	// images won't need to be downloaded again when the screen is rotated
 	@Override
 	public Object onRetainNonConfigurationInstance() {
-		return imageMap;
+		return mMemoryCache;
 	}
 
 	public class ImageAdapter extends BaseAdapter {
@@ -61,9 +60,20 @@ public class ImageBrowser extends Activity {
 		public ImageAdapter(Context c) {
 			mContext = c;
 
-			HashMap<String, Bitmap> previousMap = (HashMap<String, Bitmap>) getLastNonConfigurationInstance();
-			imageMap = (previousMap == null) ? new HashMap<String, Bitmap>()
-					: previousMap;
+			LruCache<String, Bitmap> previousMap = (LruCache<String, Bitmap>) getLastNonConfigurationInstance();
+
+			if (previousMap == null) {
+				mMemoryCache = new LruCache<String, Bitmap>(
+						Utils.getCacheSize(mContext)) {
+					@Override
+					protected int sizeOf(String key, Bitmap bitmap) {
+						// cache size measured in bytes
+						return bitmap.getByteCount();
+					}
+				};
+			} else {
+				mMemoryCache = previousMap;
+			}
 		}
 
 		public int getCount() {
@@ -90,13 +100,13 @@ public class ImageBrowser extends Activity {
 				imageView = (ImageView) convertView;
 			}
 
-			if (imageMap.containsKey(thumbs[position])) {
-				imageView.setImageBitmap(imageMap.get(thumbs[position]));
-				return imageView;
+			Bitmap b = mMemoryCache.get(thumbs[position]);
+			if (b != null) {
+				imageView.setImageBitmap(b);
+			} else {
+				new BitmapWorkerTask(imageView, mMemoryCache)
+						.execute(thumbs[position]);
 			}
-
-			BitmapWorkerTask task = new BitmapWorkerTask(imageView, imageMap);
-			task.execute(thumbs[position]);
 
 			return imageView;
 		}

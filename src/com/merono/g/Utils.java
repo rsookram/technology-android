@@ -10,12 +10,13 @@ import java.net.URLConnection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import android.app.ActivityManager;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
 
 public class Utils {
-
 	private static final String TAG = "Utils";
 
 	public static Bitmap getBitmapFromURL(String src) {
@@ -58,6 +59,13 @@ public class Utils {
 		}
 	}
 
+	public static int getCacheSize(Context context) {
+		int memClass = ((ActivityManager) context
+				.getSystemService(Context.ACTIVITY_SERVICE)).getMemoryClass();
+
+		return 1024 * 1024 * memClass / 8;
+	}
+
 	public static String makeGreenText(String toChange) {
 		String greenTextRegex = "<span class=\"quote\">.*?</span>";
 		Pattern pGreenText = Pattern.compile(greenTextRegex);
@@ -77,8 +85,9 @@ public class Utils {
 				tmp = tmp.replaceAll("&gt;", ">");
 				toChange = toChange.replaceFirst(greenTextRegex, tmp);
 				mGreenText = pGreenText.matcher(toChange);
-			} else
+			} else {
 				break;
+			}
 		}
 		return toChange;
 	}
@@ -102,8 +111,9 @@ public class Utils {
 				tmp = tmp.replaceAll("<a.+?\">", "");
 				toChange = toChange.replaceFirst(linkQuoteRegex, tmp);
 				mLinkQuote = pLinkQuote.matcher(toChange);
-			} else
+			} else {
 				break;
+			}
 		}
 		return toChange;
 	}
