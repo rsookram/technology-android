@@ -12,13 +12,11 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.util.Log;
-import android.util.LruCache;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,7 +32,6 @@ public class GActivity extends Activity {
 	static int mPageNum = 0;
 	static String mBoardName = "g";
 	static final String[] links = new String[15]; // holds the thread links
-	private LruCache<String, Bitmap> mMemoryCache;
 
 	private static final String baseUrl = "http://boards.4chan.org/";
 	private static final String TAG = "GActivity";
@@ -54,7 +51,7 @@ public class GActivity extends Activity {
 		SharedPreferences pref = PreferenceManager
 				.getDefaultSharedPreferences(this);
 
-		final ThreadPosts postsFromBefore = (ThreadPosts) getLastNonConfigurationInstance();
+		final ArrayList<Post> postsFromBefore = (ArrayList<Post>) getLastNonConfigurationInstance();
 		if (postsFromBefore == null) {
 			mBoardName = pref.getString("board", "g");
 			pref.edit().putString("currentBoard", mBoardName).commit();
@@ -67,10 +64,8 @@ public class GActivity extends Activity {
 			mBoardName = pref.getString("currentBoard", "g");
 			this.setTitle("/" + mBoardName + "/" + " - page " + mPageNum);
 
-			mMemoryCache = postsFromBefore.images;
-			post = postsFromBefore.posts;
-			adapter = new PostAdapter(this, R.layout.post_item, post,
-					mMemoryCache);
+			post = postsFromBefore;
+			adapter = new PostAdapter(this, R.layout.post_item, post, true);
 			lv.setAdapter(adapter);
 			setupOnItemClickListener();
 			setProgressBarIndeterminateVisibility(false);
@@ -79,10 +74,7 @@ public class GActivity extends Activity {
 
 	@Override
 	public Object onRetainNonConfigurationInstance() {
-		ThreadPosts restoreValue = new ThreadPosts();
-		restoreValue.posts = post;
-		restoreValue.images = mMemoryCache;
-		return restoreValue;
+		return post;
 	}
 
 	@Override
@@ -204,11 +196,6 @@ public class GActivity extends Activity {
 		});
 	}
 
-	class ThreadPosts {
-		ArrayList<Post> posts;
-		LruCache<String, Bitmap> images;
-	}
-
 	class LoadThreads extends AsyncTask<String, Void, ArrayList<Post>> {
 		Activity activity;
 
@@ -268,17 +255,8 @@ public class GActivity extends Activity {
 
 			ListView lv = (ListView) findViewById(R.id.main_list);
 
-			mMemoryCache = new LruCache<String, Bitmap>(
-					Utils.getCacheSize(activity)) {
-				@Override
-				protected int sizeOf(String key, Bitmap bitmap) {
-					// cache size measured in bytes
-					return bitmap.getByteCount();
-				}
-			};
-
 			adapter = new PostAdapter(activity, R.layout.post_item, threads,
-					mMemoryCache);
+					true);
 			lv.setAdapter(adapter);
 			setupOnItemClickListener();
 

@@ -2,9 +2,8 @@ package com.merono.g;
 
 import java.util.ArrayList;
 
+import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.util.LruCache;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,15 +13,15 @@ import android.widget.TextView;
 
 public class PostAdapter extends ArrayAdapter<Post> {
 	private int postItemResourceId;
-	private LruCache<String, Bitmap> mMemoryCache;
 	private boolean loadThumbs;
+	private Activity mActivity;
 
-	public PostAdapter(Context context, int textViewResourceId,
-			ArrayList<Post> posts, LruCache<String, Bitmap> imageHolder) {
-		super(context, textViewResourceId, posts);
+	public PostAdapter(Activity activity, int textViewResourceId,
+			ArrayList<Post> posts, boolean loadT) {
+		super(activity, textViewResourceId, posts);
 		postItemResourceId = textViewResourceId;
-		mMemoryCache = imageHolder;
-		loadThumbs = (imageHolder != null);
+		loadThumbs = loadT;
+		mActivity = activity;
 	}
 
 	@Override
@@ -37,14 +36,11 @@ public class PostAdapter extends ArrayAdapter<Post> {
 		viewHolder.idView.setText(entry.getId());
 		viewHolder.bodyView.setText(entry.getText());
 
-		Bitmap b;
 		if (!loadThumbs || entry.getImgURL().equals("")) {
 			viewHolder.imageView.setVisibility(View.GONE);
-		} else if ((b = mMemoryCache.get(entry.getImgURL())) != null) {
-			viewHolder.imageView.setImageBitmap(b);
 		} else {
-			new BitmapWorkerTask(viewHolder.imageView, mMemoryCache)
-					.execute(entry.getImgURL());
+			GApplication appState = ((GApplication) mActivity.getApplication());
+			appState.loadBitmap(entry.getImgURL(), viewHolder.imageView);
 		}
 
 		return view;

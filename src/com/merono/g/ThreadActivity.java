@@ -48,7 +48,7 @@ public class ThreadActivity extends Activity {
 		} else {
 			posts = postsFromBefore;
 			ListView lv = (ListView) findViewById(R.id.list);
-			adapter = new PostAdapter(this, R.layout.post_item, posts, null);
+			adapter = new PostAdapter(this, R.layout.post_item, posts, false);
 			lv.setAdapter(adapter);
 			setupOnClickListener(this);
 
@@ -168,7 +168,7 @@ public class ThreadActivity extends Activity {
 			if (result != null) {
 				final ListView lv = (ListView) findViewById(R.id.list);
 				adapter = new PostAdapter(activity, R.layout.post_item, result,
-						null);
+						false);
 				lv.setAdapter(adapter);
 				setupOnClickListener(activity);
 			} else {

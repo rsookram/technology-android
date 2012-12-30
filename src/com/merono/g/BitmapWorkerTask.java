@@ -23,9 +23,8 @@ public class BitmapWorkerTask extends AsyncTask<String, String, Bitmap> {
 	@Override
 	protected Bitmap doInBackground(String... params) {
 		final Bitmap bitmap = Utils.getBitmapFromURL(params[0]);
-		if (mMemoryCache.get(params[0]) == null) {
-			mMemoryCache.put(params[0], bitmap);
-		}
+		mMemoryCache.put(params[0], Utils.getBitmapFromURL(params[0]));
+
 		return bitmap;
 	}
 

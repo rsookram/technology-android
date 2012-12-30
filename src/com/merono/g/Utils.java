@@ -10,8 +10,6 @@ import java.net.URLConnection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import android.app.ActivityManager;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.util.Log;
@@ -57,13 +55,6 @@ public class Utils {
 			Log.e(TAG, "IOException");
 			return "error";
 		}
-	}
-
-	public static int getCacheSize(Context context) {
-		int memClass = ((ActivityManager) context
-				.getSystemService(Context.ACTIVITY_SERVICE)).getMemoryClass();
-
-		return 1024 * 1024 * memClass / 8;
 	}
 
 	public static String makeGreenText(String toChange) {
