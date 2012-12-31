@@ -3,8 +3,6 @@ package com.merono.g;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.util.Log;
-
 public class Post {
 	private String body;
 	private String name;
@@ -13,32 +11,26 @@ public class Post {
 	private String imgUrl;
 	private String fullImgUrl;
 
-	private static final String TAG = "Post";
-
 	Post(JSONObject postJSON, String boardName) {
 		try {
 			body = postJSON.getString("com").replaceAll("<br>", "\n");
-			body = body.replaceAll("&quot;", "\"");
 			body = body.replaceAll("</?span.*?>", "");
 			body = body.replaceAll("</?a.*?>", "");
-			body = body.replaceAll("&gt;", ">");
-			body = body.replaceAll("&lt;", "<");
-			body = body.replaceAll("&amp;", "&");
+			body = Utils.replaceEntities(body);
 		} catch (JSONException e) {
 			e.printStackTrace();
 			body = "";
 		}
 
 		try {
-			name = postJSON.getString("name");
+			name = Utils.replaceEntities(postJSON.getString("name"));
 		} catch (JSONException e) {
 			e.printStackTrace();
 			name = "no name";
 		}
 
 		try {
-			time = postJSON.getString("now");
-			time = time.replaceFirst("\\(.*?\\)", "  ");
+			time = postJSON.getString("now").replaceFirst("\\(.*?\\)", "  ");
 		} catch (JSONException e) {
 			e.printStackTrace();
 			time = "now";

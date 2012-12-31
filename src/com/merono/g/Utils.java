@@ -35,7 +35,6 @@ public class Utils {
 			URL url = new URL(urlToLoad);
 			URLConnection conn = url.openConnection();
 
-			// Get the response
 			BufferedReader rd = new BufferedReader(new InputStreamReader(
 					conn.getInputStream()), 8 * 1024);
 			StringBuffer sb = new StringBuffer();
@@ -44,7 +43,7 @@ public class Utils {
 				sb.append(line);
 			}
 			rd.close();
-			return sb.toString(); // have entire html in this string
+			return sb.toString();
 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -55,6 +54,11 @@ public class Utils {
 			Log.e(TAG, "IOException");
 			return "error";
 		}
+	}
+
+	public static String replaceEntities(String s) {
+		return s.replaceAll("&quot;", "\"").replaceAll("&gt;", ">")
+				.replaceAll("&lt;", "<").replaceAll("&amp;", "&");
 	}
 
 	public static String makeGreenText(String toChange) {

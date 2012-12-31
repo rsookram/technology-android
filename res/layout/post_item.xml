@@ -27,9 +27,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignTop="@id/post_name"
-        android:layout_below="@id/post_time"
         android:layout_marginRight="5dp"
-        android:layout_toLeftOf="@id/post_id"
+        android:layout_toLeftOf="@+id/post_id"
         android:text="06/15/12  19:58"
         android:textSize="12sp" />
 

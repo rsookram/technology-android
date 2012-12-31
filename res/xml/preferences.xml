@@ -2,6 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <EditTextPreference
+        android:defaultValue="g"
         android:key="board"
         android:summary="Board to load on startup"
         android:title="Default Board" />

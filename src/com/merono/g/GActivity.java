@@ -48,6 +48,7 @@ public class GActivity extends Activity {
 		ListView lv = (ListView) findViewById(R.id.main_list);
 		registerForContextMenu(lv);
 
+		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 		SharedPreferences pref = PreferenceManager
 				.getDefaultSharedPreferences(this);
 
