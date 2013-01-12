@@ -26,6 +26,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.NumberPicker;
 import android.widget.Toast;
 
 public class GActivity extends Activity {
@@ -120,22 +121,17 @@ public class GActivity extends Activity {
 		AlertDialog.Builder pageAlert = new AlertDialog.Builder(this);
 		pageAlert.setTitle("Choose Page");
 
-		final EditText input = new EditText(this);
-		input.setInputType(InputType.TYPE_CLASS_NUMBER);
-		pageAlert.setView(input);
+		final NumberPicker pageNumber = new NumberPicker(this);
+		pageNumber.setMinValue(0);
+		pageNumber.setMaxValue(10);
+		pageNumber.setValue(mPageNum);
+		pageAlert.setView(pageNumber);
 
 		pageAlert.setPositiveButton("OK",
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						String value = input.getText().toString();
-						try {
-							mPageNum = Integer.parseInt(value);
-							refresh();
-						} catch (Exception e) {
-							Toast.makeText(getBaseContext(),
-									"Invalid page number", Toast.LENGTH_SHORT)
-									.show();
-						}
+						mPageNum = pageNumber.getValue();
+						refresh();
 					}
 				});
 
@@ -154,8 +150,7 @@ public class GActivity extends Activity {
 		boardAlert.setPositiveButton("OK",
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
-						String value = boardText.getText().toString();
-						mBoardName = value;
+						mBoardName = boardText.getText().toString();
 						SharedPreferences pref = PreferenceManager
 								.getDefaultSharedPreferences(getBaseContext());
 						pref.edit().putString("currentBoard", mBoardName)

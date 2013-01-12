@@ -14,8 +14,7 @@ public class Post {
 	Post(JSONObject postJSON, String boardName) {
 		try {
 			body = postJSON.getString("com").replaceAll("<br>", "\n");
-			body = body.replaceAll("</?span.*?>", "");
-			body = body.replaceAll("</?a.*?>", "");
+			body = body.replaceAll("</?.*?>", "");
 			body = Utils.replaceEntities(body);
 		} catch (JSONException e) {
 			e.printStackTrace();
