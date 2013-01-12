@@ -15,7 +15,6 @@ import android.widget.ImageView;
 
 public class ImageBrowser extends Activity {
 	String[] thumbs;
-	private static final String TAG = "ImageBrowser";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

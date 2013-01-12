@@ -17,10 +17,10 @@ public class PostAdapter extends ArrayAdapter<Post> {
 	private Activity mActivity;
 
 	public PostAdapter(Activity activity, int textViewResourceId,
-			ArrayList<Post> posts, boolean loadT) {
+			ArrayList<Post> posts, boolean loadThumbnails) {
 		super(activity, textViewResourceId, posts);
 		postItemResourceId = textViewResourceId;
-		loadThumbs = loadT;
+		loadThumbs = loadThumbnails;
 		mActivity = activity;
 	}
 

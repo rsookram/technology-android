@@ -58,7 +58,8 @@ public class Utils {
 
 	public static String replaceEntities(String s) {
 		return s.replaceAll("&quot;", "\"").replaceAll("&gt;", ">")
-				.replaceAll("&lt;", "<").replaceAll("&amp;", "&");
+				.replaceAll("&lt;", "<").replaceAll("&amp;", "&")
+				.replaceAll("&#039;", "'");
 	}
 
 	public static String makeGreenText(String toChange) {

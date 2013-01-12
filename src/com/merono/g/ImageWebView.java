@@ -10,7 +10,6 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 
 public class ImageWebView extends Activity {
-	private static final String TAG = "ImageWebView";
 	protected static String URL;
 
 	private static final String PREF_FILE = "WebViewSettings";
@@ -24,22 +23,17 @@ public class ImageWebView extends Activity {
 
 		SharedPreferences pref = PreferenceManager
 				.getDefaultSharedPreferences(this);
-		this.setTitle("/" + pref.getString("currentBoard", "g") + "/");
+		setTitle("/" + pref.getString("currentBoard", "g") + "/");
 
-		// this disables the toast that shows the hint to double-tap
-		SharedPreferences prefs = getSharedPreferences(PREF_FILE,
-				Context.MODE_PRIVATE);
-		if (prefs.getInt(DOUBLE_TAP_TOAST_COUNT, 1) > 0) {
-			prefs.edit().putInt(DOUBLE_TAP_TOAST_COUNT, 0).commit();
-		}
+		disableDoubleTapToast();
 
-		WebView img = (WebView) findViewById(R.id.browser);
-		img.getSettings().setLoadWithOverviewMode(true);
-		img.getSettings().setUseWideViewPort(true);
-		img.getSettings().setBuiltInZoomControls(true);
+		WebView wv = (WebView) findViewById(R.id.browser);
+		wv.getSettings().setLoadWithOverviewMode(true);
+		wv.getSettings().setUseWideViewPort(true);
+		wv.getSettings().setBuiltInZoomControls(true);
 
 		final Activity activity = this;
-		img.setWebChromeClient(new WebChromeClient() {
+		wv.setWebChromeClient(new WebChromeClient() {
 			@Override
 			public void onProgressChanged(WebView view, int newProgress) {
 				super.onProgressChanged(view, newProgress);
@@ -47,6 +41,14 @@ public class ImageWebView extends Activity {
 			}
 		});
 
-		img.loadUrl(getIntent().getStringExtra(URL));
+		wv.loadUrl(getIntent().getStringExtra(URL));
+	}
+
+	private void disableDoubleTapToast() {
+		SharedPreferences prefs = getSharedPreferences(PREF_FILE,
+				Context.MODE_PRIVATE);
+		if (prefs.getInt(DOUBLE_TAP_TOAST_COUNT, 1) > 0) {
+			prefs.edit().putInt(DOUBLE_TAP_TOAST_COUNT, 0).commit();
+		}
 	}
 }

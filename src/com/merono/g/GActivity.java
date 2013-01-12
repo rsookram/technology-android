@@ -45,9 +45,6 @@ public class GActivity extends Activity {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.gactivity_layout);
 
-		ListView lv = (ListView) findViewById(R.id.main_list);
-		registerForContextMenu(lv);
-
 		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 		SharedPreferences pref = PreferenceManager
 				.getDefaultSharedPreferences(this);
@@ -66,8 +63,9 @@ public class GActivity extends Activity {
 			this.setTitle("/" + mBoardName + "/" + " - page " + mPageNum);
 
 			post = postsFromBefore;
+
 			adapter = new PostAdapter(this, R.layout.post_item, post, true);
-			lv.setAdapter(adapter);
+			((ListView) findViewById(R.id.main_list)).setAdapter(adapter);
 			setupOnItemClickListener();
 			setProgressBarIndeterminateVisibility(false);
 		}
