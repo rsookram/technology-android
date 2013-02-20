@@ -34,7 +34,7 @@ public class GActivity extends Activity {
 	static String mBoardName = "g";
 	static final String[] links = new String[15]; // holds the thread links
 
-	private static final String baseUrl = "http://boards.4chan.org/";
+	private static final String baseUrl = "https://api.4chan.org/";
 	private static final String TAG = "GActivity";
 
 	ArrayList<Post> post = new ArrayList<Post>();
@@ -56,8 +56,7 @@ public class GActivity extends Activity {
 			pref.edit().putString("currentBoard", mBoardName).commit();
 			this.setTitle("/" + mBoardName + "/" + " - page " + mPageNum);
 
-			String urlStr = "http://api.4chan.org/" + mBoardName + "/"
-					+ mPageNum + ".json";
+			String urlStr = baseUrl + mBoardName + "/" + mPageNum + ".json";
 			new LoadThreads(this).execute(urlStr);
 		} else {
 			mBoardName = pref.getString("currentBoard", "g");
@@ -112,43 +111,34 @@ public class GActivity extends Activity {
 
 		this.setTitle("/" + mBoardName + "/" + " - page " + mPageNum);
 
-		String urlStr = "http://api.4chan.org/" + mBoardName + "/" + mPageNum
-				+ ".json";
+		String urlStr = baseUrl + mBoardName + "/" + mPageNum + ".json";
 		new LoadThreads(this).execute(urlStr);
 	}
 
 	void choosePage() {
-		AlertDialog.Builder pageAlert = new AlertDialog.Builder(this);
-		pageAlert.setTitle("Choose Page");
-
 		final NumberPicker pageNumber = new NumberPicker(this);
 		pageNumber.setMinValue(0);
 		pageNumber.setMaxValue(10);
 		pageNumber.setValue(mPageNum);
-		pageAlert.setView(pageNumber);
 
-		pageAlert.setPositiveButton("OK",
-				new DialogInterface.OnClickListener() {
+		new AlertDialog.Builder(this).setTitle("Choose Page")
+				.setView(pageNumber)
+				.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						mPageNum = pageNumber.getValue();
 						refresh();
 					}
-				});
-
-		pageAlert.show();
+				}).show();
 	}
 
 	void chooseBoard() {
-		AlertDialog.Builder boardAlert = new AlertDialog.Builder(this);
-		boardAlert.setTitle("Choose Board");
-
 		final EditText boardText = new EditText(this);
 		// forces one-line text input
 		boardText.setInputType(InputType.TYPE_CLASS_TEXT);
-		boardAlert.setView(boardText);
 
-		boardAlert.setPositiveButton("OK",
-				new DialogInterface.OnClickListener() {
+		new AlertDialog.Builder(this).setTitle("Choose Board")
+				.setView(boardText)
+				.setPositiveButton("OK", new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						mBoardName = boardText.getText().toString();
 						SharedPreferences pref = PreferenceManager
@@ -158,9 +148,7 @@ public class GActivity extends Activity {
 						mPageNum = 0;
 						refresh();
 					}
-				});
-
-		boardAlert.show();
+				}).show();
 	}
 
 	void setupOnItemClickListener() {
@@ -220,8 +208,8 @@ public class GActivity extends Activity {
 					JSONArray posts = threads.getJSONObject(i).getJSONArray(
 							"posts");
 					post.add(new Post(posts.getJSONObject(0), mBoardName));
-					links[i] = baseUrl + mBoardName + "/res/"
-							+ posts.getJSONObject(0).getInt("no");
+					links[i] = "https://boards.4chan.org/" + mBoardName
+							+ "/res/" + posts.getJSONObject(0).getInt("no");
 				}
 			} catch (JSONException e) {
 				e.printStackTrace();

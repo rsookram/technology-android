@@ -44,9 +44,9 @@ public class Post {
 
 		boolean hasImage = true;
 		try {
-			imgUrl = "http://thumbs.4chan.org/" + boardName + "/thumb/"
+			imgUrl = "https://thumbs.4chan.org/" + boardName + "/thumb/"
 					+ postJSON.getLong("tim") + "s.jpg";
-			fullImgUrl = "http://images.4chan.org/" + boardName + "/src/"
+			fullImgUrl = "https://images.4chan.org/" + boardName + "/src/"
 					+ postJSON.getLong("tim") + postJSON.getString("ext");
 		} catch (JSONException e) {
 			imgUrl = "";

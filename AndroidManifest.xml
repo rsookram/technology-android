@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.merono.g"
     android:versionCode="35"
-    android:versionName="4.30" >
+    android:versionName="4.31" >
 
     <uses-sdk
         android:minSdkVersion="14"
