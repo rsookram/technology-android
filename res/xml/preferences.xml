@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
-    <EditTextPreference
-        android:defaultValue="g"
-        android:key="board"
-        android:summary="Board to load on startup"
-        android:title="Default Board" />
+    <PreferenceCategory android:title="General Settings" >
+        <EditTextPreference
+            android:defaultValue="g"
+            android:key="board"
+            android:summary="Board to load on startup"
+            android:title="Default Board" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="Image Viewer Settings" >
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="zoom_imageviewer"
+            android:title="Display Zoom Controls" />
+    </PreferenceCategory>
 
 </PreferenceScreen>
