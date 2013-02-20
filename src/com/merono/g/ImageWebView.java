@@ -8,6 +8,7 @@ import android.preference.PreferenceManager;
 import android.view.Window;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 public class ImageWebView extends Activity {
 	protected static String URL;
@@ -17,6 +18,7 @@ public class ImageWebView extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		setTheme(R.style.ActionBarOverlay);
 		getWindow().requestFeature(Window.FEATURE_PROGRESS);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.imageweb_layout);
@@ -40,6 +42,13 @@ public class ImageWebView extends Activity {
 			public void onProgressChanged(WebView view, int newProgress) {
 				super.onProgressChanged(view, newProgress);
 				activity.setProgress(newProgress * 100);
+			}
+		});
+		wv.setWebViewClient(new WebViewClient() {
+			@Override
+			public void onPageFinished(WebView view, String url) {
+				super.onPageFinished(view, url);
+				activity.getActionBar().hide();
 			}
 		});
 
