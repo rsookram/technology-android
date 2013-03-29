@@ -30,12 +30,13 @@ import android.widget.NumberPicker;
 import android.widget.Toast;
 
 public class GActivity extends Activity {
+	private static final String TAG = "GActivity";
+	private static final String baseUrl = "https://api.4chan.org/";
+	private static final int NUMTHREADS = 15;
+
 	static int mPageNum = 0;
 	static String mBoardName = "g";
-	static final String[] links = new String[15]; // holds the thread links
-
-	private static final String baseUrl = "https://api.4chan.org/";
-	private static final String TAG = "GActivity";
+	static final String[] links = new String[NUMTHREADS]; // holds thread links
 
 	ArrayList<Post> post = new ArrayList<Post>();
 	PostAdapter adapter;
@@ -63,10 +64,10 @@ public class GActivity extends Activity {
 			this.setTitle("/" + mBoardName + "/" + " - page " + mPageNum);
 
 			post = postsFromBefore;
-
 			adapter = new PostAdapter(this, R.layout.post_item, post, true);
 			((ListView) findViewById(R.id.main_list)).setAdapter(adapter);
 			setupOnItemClickListener();
+
 			setProgressBarIndeterminateVisibility(false);
 		}
 	}
@@ -204,7 +205,7 @@ public class GActivity extends Activity {
 				object = (JSONObject) new JSONTokener(siteJson).nextValue();
 				JSONArray threads = object.getJSONArray("threads");
 
-				for (int i = 0; i < 15; i++) {
+				for (int i = 0; i < NUMTHREADS; i++) {
 					JSONArray posts = threads.getJSONObject(i).getJSONArray(
 							"posts");
 					post.add(new Post(posts.getJSONObject(0), mBoardName));
@@ -222,24 +223,22 @@ public class GActivity extends Activity {
 		@Override
 		protected void onPostExecute(ArrayList<Post> threads) {
 			super.onPostExecute(threads);
+
 			if (links[0].equals("error")) {
-				Toast.makeText(getApplicationContext(),
-						"Error loading. (IOException)", Toast.LENGTH_LONG)
-						.show();
+				Toast.makeText(activity, "Error loading. (IOException)",
+						Toast.LENGTH_LONG).show();
 				setProgressBarIndeterminateVisibility(false);
 				return;
 			} else if (links[0].equals("nofile")) {
-				Toast.makeText(getApplicationContext(), "Page does not exist.",
+				Toast.makeText(activity, "Page does not exist.",
 						Toast.LENGTH_LONG).show();
 				setProgressBarIndeterminateVisibility(false);
 				return;
 			}
 
-			ListView lv = (ListView) findViewById(R.id.main_list);
-
 			adapter = new PostAdapter(activity, R.layout.post_item, threads,
 					true);
-			lv.setAdapter(adapter);
+			((ListView) findViewById(R.id.main_list)).setAdapter(adapter);
 			setupOnItemClickListener();
 
 			setProgressBarIndeterminateVisibility(false);

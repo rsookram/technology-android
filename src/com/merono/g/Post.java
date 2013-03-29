@@ -1,9 +1,16 @@
 package com.merono.g;
 
+import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.util.Log;
+
 public class Post {
+	private static final String TAG = "Post";
 	private String body;
 	private String name;
 	private String time;
@@ -11,9 +18,20 @@ public class Post {
 	private String imgUrl;
 	private String fullImgUrl;
 
+	ArrayList<String> quotes = null;
+
 	Post(JSONObject postJSON, String boardName) {
 		try {
 			body = postJSON.getString("com").replaceAll("<br>", "\n");
+
+			// extract IDs of quotes
+			quotes = new ArrayList<String>();
+			Pattern quoteIDPattern = Pattern.compile("&gt;&gt;(.*?)<");
+			Matcher m = quoteIDPattern.matcher(body);
+			while (m.find()) {
+				quotes.add(m.group(1));
+			}
+
 			body = body.replaceAll("</?.*?>", "");
 			body = Utils.replaceEntities(body);
 		} catch (JSONException e) {
@@ -36,7 +54,7 @@ public class Post {
 		}
 
 		try {
-			id = "No." + postJSON.getInt("no");
+			id = String.valueOf(postJSON.getInt("no"));
 		} catch (JSONException e) {
 			e.printStackTrace();
 			id = "id error";
@@ -82,6 +100,14 @@ public class Post {
 
 	public String getFullImgUrl() {
 		return fullImgUrl;
+	}
+
+	public boolean hasImgUrl() {
+		return !imgUrl.equals("");
+	}
+
+	public boolean hasFullImgUrl() {
+		return !fullImgUrl.equals("");
 	}
 
 	@Override

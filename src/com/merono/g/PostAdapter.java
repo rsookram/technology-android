@@ -33,10 +33,10 @@ public class PostAdapter extends ArrayAdapter<Post> {
 
 		viewHolder.nameView.setText(entry.getName());
 		viewHolder.timeView.setText(entry.getTime());
-		viewHolder.idView.setText(entry.getId());
+		viewHolder.idView.setText("No." + entry.getId());
 		viewHolder.bodyView.setText(entry.getText());
 
-		if (!loadThumbs || entry.getImgURL().equals("")) {
+		if (!loadThumbs || !entry.hasImgUrl()) {
 			viewHolder.imageView.setVisibility(View.GONE);
 		} else {
 			GApplication appState = ((GApplication) mActivity.getApplication());

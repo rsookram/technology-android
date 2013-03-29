@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -20,12 +21,14 @@ import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
 
 public class ThreadActivity extends Activity {
 	private static final String TAG = "ThreadActivity";
 	public static final String URL = "";
+
 	ArrayList<Post> posts = null;
 	PostAdapter adapter;
 	String mBoardName;
@@ -47,9 +50,8 @@ public class ThreadActivity extends Activity {
 			new LoadPosts(this).execute(getIntent().getStringExtra(URL));
 		} else {
 			posts = postsFromBefore;
-			ListView lv = (ListView) findViewById(R.id.list);
 			adapter = new PostAdapter(this, R.layout.post_item, posts, false);
-			lv.setAdapter(adapter);
+			((ListView) findViewById(R.id.list)).setAdapter(adapter);
 			setupOnClickListener(this);
 
 			setProgressBarIndeterminateVisibility(false);
@@ -91,9 +93,10 @@ public class ThreadActivity extends Activity {
 
 	void launchImageBrowser() {
 		ArrayList<Post> images = new ArrayList<Post>();
-		for (Post p : posts) {
-			if (!p.getImgURL().equals(""))
-				images.add(p);
+		for (Post post : posts) {
+			if (post.hasImgUrl()) {
+				images.add(post);
+			}
 		}
 
 		String[] thumbUrls = new String[images.size()];
@@ -112,16 +115,47 @@ public class ThreadActivity extends Activity {
 	void setupOnClickListener(Activity activity) {
 		final ListView lv = (ListView) findViewById(R.id.list);
 
-		final Intent intent = new Intent(activity, ImageWebView.class);
+		final Activity a = activity;
 		lv.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
+					int position, long viewId) {
+				ArrayList<String> quoteIds = ((Post) lv
+						.getItemAtPosition(position)).quotes;
+				if (quoteIds == null || quoteIds.size() == 0) {
+					return;
+				}
+
+				ArrayList<Post> quotePosts = new ArrayList<Post>();
+				for (String quoteId : quoteIds) {
+					for (Post post : posts) {
+						if (post.getId().equals(quoteId)) {
+							quotePosts.add(post);
+							break;
+						}
+					}
+				}
+
+				quotePosts.add((Post) lv.getItemAtPosition(position));
+
+				View quoteList = new ListView(a);
+				((ListView) quoteList).setAdapter(new PostAdapter(a,
+						R.layout.post_item, quotePosts, false));
+
+				new AlertDialog.Builder(a).setView(quoteList).show();
+			}
+		});
+
+		final Intent intent = new Intent(activity, ImageWebView.class);
+		lv.setOnItemLongClickListener(new OnItemLongClickListener() {
+			public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
+					int position, long arg3) {
 				Post selected = (Post) lv.getItemAtPosition(position);
-				if (!selected.getFullImgUrl().equals("")) {
+				if (selected.hasFullImgUrl()) {
 					intent.putExtra(com.merono.g.ImageWebView.URL,
 							selected.getFullImgUrl());
 					startActivity(intent);
 				}
+				return true;
 			}
 		});
 	}
@@ -152,13 +186,13 @@ public class ThreadActivity extends Activity {
 				for (int i = 0; i < allPosts.length(); i++) {
 					posts.add(new Post(allPosts.getJSONObject(i), mBoardName));
 				}
+
+				Log.d(TAG, "finished parsing");
+				return posts;
 			} catch (JSONException e) {
 				e.printStackTrace();
 				return null;
 			}
-
-			Log.d(TAG, "finished parsing");
-			return posts;
 		}
 
 		@Override
