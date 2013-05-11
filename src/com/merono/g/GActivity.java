@@ -32,11 +32,11 @@ import android.widget.Toast;
 public class GActivity extends Activity {
 	private static final String TAG = "GActivity";
 	private static final String baseUrl = "https://api.4chan.org/";
-	private static final int NUMTHREADS = 15;
+	private static final int NUM_THREADS = 15;
 
 	static int mPageNum = 0;
 	static String mBoardName = "g";
-	static final String[] links = new String[NUMTHREADS]; // holds thread links
+	static final String[] threadLinks = new String[NUM_THREADS];
 
 	ArrayList<Post> post = new ArrayList<Post>();
 	PostAdapter adapter;
@@ -160,7 +160,7 @@ public class GActivity extends Activity {
 			public void onItemClick(AdapterView<?> arg0, View arg1,
 					int position, long arg3) {
 				final Intent i = new Intent(a, ThreadActivity.class);
-				i.putExtra(com.merono.g.ThreadActivity.URL, links[position]);
+				i.putExtra(com.merono.g.ThreadActivity.URL, threadLinks[position]);
 				startActivity(i);
 			}
 		});
@@ -196,7 +196,7 @@ public class GActivity extends Activity {
 		protected ArrayList<Post> doInBackground(String... params) {
 			String siteJson = Utils.loadSite(params[0]);
 			if (siteJson.equals("nofile") || siteJson.equals("error")) {
-				links[0] = siteJson;
+				threadLinks[0] = siteJson;
 				return null;
 			}
 
@@ -205,11 +205,11 @@ public class GActivity extends Activity {
 				object = (JSONObject) new JSONTokener(siteJson).nextValue();
 				JSONArray threads = object.getJSONArray("threads");
 
-				for (int i = 0; i < NUMTHREADS; i++) {
+				for (int i = 0; i < NUM_THREADS; i++) {
 					JSONArray posts = threads.getJSONObject(i).getJSONArray(
 							"posts");
 					post.add(new Post(posts.getJSONObject(0), mBoardName));
-					links[i] = "https://boards.4chan.org/" + mBoardName
+					threadLinks[i] = "https://boards.4chan.org/" + mBoardName
 							+ "/res/" + posts.getJSONObject(0).getInt("no");
 				}
 			} catch (JSONException e) {
@@ -224,12 +224,12 @@ public class GActivity extends Activity {
 		protected void onPostExecute(ArrayList<Post> threads) {
 			super.onPostExecute(threads);
 
-			if (links[0].equals("error")) {
+			if (threadLinks[0].equals("error")) {
 				Toast.makeText(activity, "Error loading. (IOException)",
 						Toast.LENGTH_LONG).show();
 				setProgressBarIndeterminateVisibility(false);
 				return;
-			} else if (links[0].equals("nofile")) {
+			} else if (threadLinks[0].equals("nofile")) {
 				Toast.makeText(activity, "Page does not exist.",
 						Toast.LENGTH_LONG).show();
 				setProgressBarIndeterminateVisibility(false);

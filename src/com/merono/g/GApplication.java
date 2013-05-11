@@ -18,8 +18,7 @@ public class GApplication extends Application {
 		mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
 			@Override
 			protected int sizeOf(String key, Bitmap bitmap) {
-				// cache size measured in bytes
-				return bitmap.getByteCount();
+				return bitmap.getByteCount(); // cache size measured in bytes
 			}
 		};
 	}
