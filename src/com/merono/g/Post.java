@@ -7,10 +7,7 @@ import java.util.regex.Pattern;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.util.Log;
-
 public class Post {
-	private static final String TAG = "Post";
 	private String body;
 	private String name;
 	private String time;
@@ -75,7 +72,6 @@ public class Post {
 		if (hasImage) {
 			name = name + " <img>";
 		}
-
 	}
 
 	public String getText() {

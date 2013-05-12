@@ -50,8 +50,7 @@ public class PostAdapter extends ArrayAdapter<Post> {
 		View workingView = null;
 
 		if (convertView == null) {
-			final Context context = getContext();
-			final LayoutInflater inflater = (LayoutInflater) context
+			final LayoutInflater inflater = (LayoutInflater) getContext()
 					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
 			workingView = inflater.inflate(postItemResourceId, null);
@@ -91,7 +90,6 @@ public class PostAdapter extends ArrayAdapter<Post> {
 					.findViewById(R.id.post_img);
 
 			workingView.setTag(viewHolder);
-
 		} else {
 			viewHolder = (ViewHolder) tag;
 		}
