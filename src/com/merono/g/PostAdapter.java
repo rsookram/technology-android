@@ -13,14 +13,12 @@ import android.widget.TextView;
 
 public class PostAdapter extends ArrayAdapter<Post> {
 	private int postItemResourceId;
-	private boolean loadThumbs;
 	private Activity mActivity;
 
 	public PostAdapter(Activity activity, int textViewResourceId,
-			ArrayList<Post> posts, boolean loadThumbnails) {
+			ArrayList<Post> posts) {
 		super(activity, textViewResourceId, posts);
 		postItemResourceId = textViewResourceId;
-		loadThumbs = loadThumbnails;
 		mActivity = activity;
 	}
 
@@ -36,10 +34,11 @@ public class PostAdapter extends ArrayAdapter<Post> {
 		viewHolder.idView.setText("No." + entry.getId());
 		viewHolder.bodyView.setText(entry.getText());
 
-		if (!loadThumbs || !entry.hasImgUrl()) {
+		if (!entry.hasImgUrl()) {
 			viewHolder.imageView.setVisibility(View.GONE);
 		} else {
 			GApplication appState = ((GApplication) mActivity.getApplication());
+			viewHolder.imageView.setVisibility(View.VISIBLE);
 			appState.loadBitmap(entry.getImgURL(), viewHolder.imageView);
 		}
 
@@ -75,7 +74,7 @@ public class PostAdapter extends ArrayAdapter<Post> {
 		final Object tag = workingView.getTag();
 		ViewHolder viewHolder = null;
 
-		if (null == tag || !(tag instanceof ViewHolder)) {
+		if (tag == null || !(tag instanceof ViewHolder)) {
 			viewHolder = new ViewHolder();
 
 			viewHolder.nameView = (TextView) workingView

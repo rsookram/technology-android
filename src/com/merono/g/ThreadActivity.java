@@ -47,10 +47,10 @@ public class ThreadActivity extends Activity {
 
 		final ArrayList<Post> postsFromBefore = (ArrayList<Post>) getLastNonConfigurationInstance();
 		if (postsFromBefore == null) {
-			new LoadPosts(this).execute(getIntent().getStringExtra(URL));
+			new LoadPostsTask(this).execute(getIntent().getStringExtra(URL));
 		} else {
 			posts = postsFromBefore;
-			adapter = new PostAdapter(this, R.layout.post_item, posts, false);
+			adapter = new PostAdapter(this, R.layout.post_item, posts);
 			((ListView) findViewById(R.id.list)).setAdapter(adapter);
 			setupOnClickListener(this);
 
@@ -88,7 +88,7 @@ public class ThreadActivity extends Activity {
 		posts.clear();
 		adapter.notifyDataSetChanged();
 
-		new LoadPosts(this).execute(getIntent().getStringExtra(URL));
+		new LoadPostsTask(this).execute(getIntent().getStringExtra(URL));
 	}
 
 	void launchImageBrowser() {
@@ -139,7 +139,7 @@ public class ThreadActivity extends Activity {
 
 				View quoteList = new ListView(a);
 				((ListView) quoteList).setAdapter(new PostAdapter(a,
-						R.layout.post_item, quotePosts, false));
+						R.layout.post_item, quotePosts));
 
 				new AlertDialog.Builder(a).setView(quoteList).show();
 			}
@@ -160,11 +160,11 @@ public class ThreadActivity extends Activity {
 		});
 	}
 
-	class LoadPosts extends AsyncTask<String, Void, ArrayList<Post>> {
+	class LoadPostsTask extends AsyncTask<String, Void, ArrayList<Post>> {
 		private static final String TAG = "ThreadActivity LoadPosts";
 		Activity activity;
 
-		public LoadPosts(Activity a) {
+		public LoadPostsTask(Activity a) {
 			activity = a;
 		}
 
@@ -201,8 +201,7 @@ public class ThreadActivity extends Activity {
 
 			if (result != null) {
 				final ListView lv = (ListView) findViewById(R.id.list);
-				adapter = new PostAdapter(activity, R.layout.post_item, result,
-						false);
+				adapter = new PostAdapter(activity, R.layout.post_item, result);
 				lv.setAdapter(adapter);
 				setupOnClickListener(activity);
 			} else {

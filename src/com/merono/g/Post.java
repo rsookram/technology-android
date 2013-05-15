@@ -57,7 +57,6 @@ public class Post {
 			id = "id error";
 		}
 
-		boolean hasImage = true;
 		try {
 			imgUrl = "https://thumbs.4chan.org/" + boardName + "/thumb/"
 					+ postJSON.getLong("tim") + "s.jpg";
@@ -66,11 +65,6 @@ public class Post {
 		} catch (JSONException e) {
 			imgUrl = "";
 			fullImgUrl = "";
-			hasImage = false;
-		}
-
-		if (hasImage) {
-			name = name + " <img>";
 		}
 	}
 

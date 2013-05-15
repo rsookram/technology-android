@@ -58,13 +58,13 @@ public class GActivity extends Activity {
 			this.setTitle("/" + mBoardName + "/" + " - page " + mPageNum);
 
 			String urlStr = baseUrl + mBoardName + "/" + mPageNum + ".json";
-			new LoadThreads(this).execute(urlStr);
+			new LoadThreadsTask(this).execute(urlStr);
 		} else {
 			mBoardName = pref.getString("currentBoard", "g");
 			this.setTitle("/" + mBoardName + "/" + " - page " + mPageNum);
 
 			post = postsFromBefore;
-			adapter = new PostAdapter(this, R.layout.post_item, post, true);
+			adapter = new PostAdapter(this, R.layout.post_item, post);
 			((ListView) findViewById(R.id.main_list)).setAdapter(adapter);
 			setupOnItemClickListener();
 
@@ -113,7 +113,7 @@ public class GActivity extends Activity {
 		this.setTitle("/" + mBoardName + "/" + " - page " + mPageNum);
 
 		String urlStr = baseUrl + mBoardName + "/" + mPageNum + ".json";
-		new LoadThreads(this).execute(urlStr);
+		new LoadThreadsTask(this).execute(urlStr);
 	}
 
 	void choosePage() {
@@ -160,7 +160,8 @@ public class GActivity extends Activity {
 			public void onItemClick(AdapterView<?> arg0, View arg1,
 					int position, long arg3) {
 				final Intent i = new Intent(a, ThreadActivity.class);
-				i.putExtra(com.merono.g.ThreadActivity.URL, threadLinks[position]);
+				i.putExtra(com.merono.g.ThreadActivity.URL,
+						threadLinks[position]);
 				startActivity(i);
 			}
 		});
@@ -179,10 +180,10 @@ public class GActivity extends Activity {
 		});
 	}
 
-	class LoadThreads extends AsyncTask<String, Void, ArrayList<Post>> {
+	class LoadThreadsTask extends AsyncTask<String, Void, ArrayList<Post>> {
 		Activity activity;
 
-		LoadThreads(Activity a) {
+		LoadThreadsTask(Activity a) {
 			activity = a;
 		}
 
@@ -236,8 +237,7 @@ public class GActivity extends Activity {
 				return;
 			}
 
-			adapter = new PostAdapter(activity, R.layout.post_item, threads,
-					true);
+			adapter = new PostAdapter(activity, R.layout.post_item, threads);
 			((ListView) findViewById(R.id.main_list)).setAdapter(adapter);
 			setupOnItemClickListener();
 
