@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Window;
 import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -21,7 +22,8 @@ public class ImageWebView extends Activity {
 		setTheme(R.style.ActionBarOverlay);
 		getWindow().requestFeature(Window.FEATURE_PROGRESS);
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.imageweb_layout);
+		WebView wv = new WebView(this);
+		setContentView(wv);
 
 		SharedPreferences pref = PreferenceManager
 				.getDefaultSharedPreferences(this);
@@ -29,12 +31,11 @@ public class ImageWebView extends Activity {
 
 		disableDoubleTapToast();
 
-		WebView wv = (WebView) findViewById(R.id.browser);
-		wv.getSettings().setLoadWithOverviewMode(true);
-		wv.getSettings().setUseWideViewPort(true);
-		wv.getSettings().setBuiltInZoomControls(true);
-		wv.getSettings().setDisplayZoomControls(
-				pref.getBoolean("zoom_imageviewer", true));
+		WebSettings ws = wv.getSettings();
+		ws.setLoadWithOverviewMode(true);
+		ws.setUseWideViewPort(true);
+		ws.setBuiltInZoomControls(true);
+		ws.setDisplayZoomControls(pref.getBoolean("zoom_imageviewer", false));
 
 		final Activity activity = this;
 		wv.setWebChromeClient(new WebChromeClient() {

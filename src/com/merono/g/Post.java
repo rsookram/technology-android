@@ -1,8 +1,6 @@
 package com.merono.g;
 
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,13 +19,7 @@ public class Post {
 		try {
 			body = postJSON.getString("com").replaceAll("<br>", "\n");
 
-			// extract IDs of quotes
-			quotes = new ArrayList<String>();
-			Pattern quoteIDPattern = Pattern.compile("&gt;&gt;(.*?)<");
-			Matcher m = quoteIDPattern.matcher(body);
-			while (m.find()) {
-				quotes.add(m.group(1));
-			}
+			quotes = Utils.extractQuotes(body);
 
 			body = body.replaceAll("</?.*?>", "");
 			body = Utils.replaceEntities(body);
@@ -40,7 +32,7 @@ public class Post {
 			name = Utils.replaceEntities(postJSON.getString("name"));
 		} catch (JSONException e) {
 			e.printStackTrace();
-			name = "no name";
+			name = "";
 		}
 
 		try {

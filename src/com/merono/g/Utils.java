@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,22 +19,20 @@ public class Utils {
 	private static final String TAG = "Utils";
 
 	public static Bitmap getBitmapFromURL(String src) {
-		Bitmap bitmap = null;
+		Bitmap bm = null;
 		try {
 			URLConnection conn = new URL(src).openConnection();
-			bitmap = BitmapFactory
-					.decodeStream((InputStream) conn.getContent());
+			bm = BitmapFactory.decodeStream((InputStream) conn.getContent());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
-		return bitmap;
+		return bm;
 	}
 
 	public static String loadSite(String urlToLoad) {
 		try {
-			URL url = new URL(urlToLoad);
-			URLConnection conn = url.openConnection();
+			URLConnection conn = new URL(urlToLoad).openConnection();
 
 			BufferedReader rd = new BufferedReader(new InputStreamReader(
 					conn.getInputStream()), 8 * 1024);
@@ -88,29 +87,16 @@ public class Utils {
 		return toChange;
 	}
 
-	public static String makeLinkQuote(String toChange) {
-		String linkQuoteRegex = "<a .*?quotelink.*?</a>";
-		Pattern pLinkQuote = Pattern.compile(linkQuoteRegex);
-		Matcher mLinkQuote = pLinkQuote.matcher(toChange);
+	// extract IDs of quotes
+	public static ArrayList<String> extractQuotes(String body) {
+		ArrayList<String> quotes = new ArrayList<String>();
 
-		int quoteCount = 0;
-		while (mLinkQuote.find()) {
-			quoteCount++;
+		Pattern quoteIDPattern = Pattern.compile("&gt;&gt;(.*?)<");
+		Matcher m = quoteIDPattern.matcher(body);
+		while (m.find()) {
+			quotes.add(m.group(1));
 		}
 
-		mLinkQuote = pLinkQuote.matcher(toChange);
-
-		for (int i = 0; i < quoteCount; i++) {
-			if (mLinkQuote.find()) {
-				String tmp = mLinkQuote.group();
-				tmp = tmp.replaceAll("</a>", "");
-				tmp = tmp.replaceAll("<a.+?\">", "");
-				toChange = toChange.replaceFirst(linkQuoteRegex, tmp);
-				mLinkQuote = pLinkQuote.matcher(toChange);
-			} else {
-				break;
-			}
-		}
-		return toChange;
+		return quotes;
 	}
 }
