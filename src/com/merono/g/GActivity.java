@@ -32,7 +32,7 @@ import android.widget.Toast;
 public class GActivity extends Activity {
 	private static final String TAG = "GActivity";
 	private static final String baseUrl = "https://api.4chan.org/";
-	private static final int NUM_THREADS = 15;
+	private static final int NUM_THREADS = 15; // number of threads per board
 
 	static int mPageNum = 0;
 	static String mBoardName = "g";
@@ -107,8 +107,9 @@ public class GActivity extends Activity {
 
 	void refresh() {
 		post.clear();
-		if (adapter != null)
+		if (adapter != null) {
 			adapter.notifyDataSetChanged();
+		}
 
 		this.setTitle("/" + mBoardName + "/" + " - page " + mPageNum);
 
@@ -217,7 +218,7 @@ public class GActivity extends Activity {
 				e.printStackTrace();
 			}
 
-			Log.d(TAG, "end parsing");
+			Log.d(TAG, "end threads parsing");
 			return post;
 		}
 

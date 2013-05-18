@@ -92,6 +92,21 @@ public class Post {
 		return !fullImgUrl.equals("");
 	}
 
+	public static ArrayList<Post> getQuotedPosts(ArrayList<String> ids,
+			ArrayList<Post> posts) {
+		ArrayList<Post> quotedPosts = new ArrayList<Post>();
+		for (String quoteId : ids) {
+			for (Post post : posts) {
+				if (post.getId().equals(quoteId)) {
+					quotedPosts.add(post);
+					break;
+				}
+			}
+		}
+
+		return quotedPosts;
+	}
+
 	@Override
 	public String toString() {
 		return body;

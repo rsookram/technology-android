@@ -125,16 +125,8 @@ public class ThreadActivity extends Activity {
 					return;
 				}
 
-				ArrayList<Post> quotePosts = new ArrayList<Post>();
-				for (String quoteId : quoteIds) {
-					for (Post post : posts) {
-						if (post.getId().equals(quoteId)) {
-							quotePosts.add(post);
-							break;
-						}
-					}
-				}
-
+				ArrayList<Post> quotePosts = Post.getQuotedPosts(quoteIds,
+						posts);
 				quotePosts.add((Post) lv.getItemAtPosition(position));
 
 				View quoteList = new ListView(a);
@@ -165,7 +157,7 @@ public class ThreadActivity extends Activity {
 		Activity activity;
 
 		public LoadPostsTask(Activity a) {
-			activity = a;
+			this.activity = a;
 		}
 
 		@Override
@@ -187,7 +179,7 @@ public class ThreadActivity extends Activity {
 					posts.add(new Post(allPosts.getJSONObject(i), mBoardName));
 				}
 
-				Log.d(TAG, "finished parsing");
+				Log.d(TAG, "finished parsing posts");
 				return posts;
 			} catch (JSONException e) {
 				e.printStackTrace();

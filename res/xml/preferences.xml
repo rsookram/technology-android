@@ -9,10 +9,11 @@
             android:title="Default Board" />
     </PreferenceCategory>
     <PreferenceCategory android:title="Image Viewer Settings" >
-        <CheckBoxPreference
+        <SwitchPreference
             android:defaultValue="false"
             android:key="zoom_imageviewer"
-            android:title="Display Zoom Controls" />
+            android:summary="Display zoom controls on screen"
+            android:title="Zoom Controls" />
     </PreferenceCategory>
 
 </PreferenceScreen>
