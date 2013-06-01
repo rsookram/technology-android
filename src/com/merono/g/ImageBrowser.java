@@ -54,15 +54,14 @@ public class ImageBrowser extends Activity {
 			return thumbs.length;
 		}
 
-		public Object getItem(int position) {
-			return null;
+		public String getItem(int position) {
+			return thumbs[position];
 		}
 
 		public long getItemId(int position) {
-			return 0;
+			return position;
 		}
 
-		// create a new ImageView for each item referenced by the Adapter
 		public View getView(int position, View convertView, ViewGroup parent) {
 			ImageView imageView;
 			if (convertView == null) {
@@ -75,7 +74,7 @@ public class ImageBrowser extends Activity {
 			}
 
 			GApplication appState = ((GApplication) mActivity.getApplication());
-			appState.loadBitmap(thumbs[position], imageView);
+			appState.loadBitmap(getItem(position), imageView);
 
 			return imageView;
 		}

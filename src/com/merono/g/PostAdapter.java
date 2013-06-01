@@ -37,8 +37,8 @@ public class PostAdapter extends ArrayAdapter<Post> {
 		if (!entry.hasImgUrl()) {
 			viewHolder.imageView.setVisibility(View.GONE);
 		} else {
-			GApplication appState = ((GApplication) mActivity.getApplication());
 			viewHolder.imageView.setVisibility(View.VISIBLE);
+			GApplication appState = ((GApplication) mActivity.getApplication());
 			appState.loadBitmap(entry.getImgURL(), viewHolder.imageView);
 		}
 

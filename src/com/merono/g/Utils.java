@@ -33,9 +33,9 @@ public class Utils {
 	public static String loadSite(String urlToLoad) {
 		try {
 			URLConnection conn = new URL(urlToLoad).openConnection();
-
 			BufferedReader rd = new BufferedReader(new InputStreamReader(
 					conn.getInputStream()), 8 * 1024);
+			
 			StringBuffer sb = new StringBuffer();
 			String line;
 			while ((line = rd.readLine()) != null) {
@@ -43,7 +43,6 @@ public class Utils {
 			}
 			rd.close();
 			return sb.toString();
-
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 			Log.e(TAG, "FileNotFoundException: " + urlToLoad);
@@ -85,18 +84,5 @@ public class Utils {
 			}
 		}
 		return toChange;
-	}
-
-	// extract IDs of quotes
-	public static ArrayList<String> extractQuotes(String body) {
-		ArrayList<String> quotes = new ArrayList<String>();
-
-		Pattern quoteIDPattern = Pattern.compile("&gt;&gt;(.*?)<");
-		Matcher m = quoteIDPattern.matcher(body);
-		while (m.find()) {
-			quotes.add(m.group(1));
-		}
-
-		return quotes;
 	}
 }

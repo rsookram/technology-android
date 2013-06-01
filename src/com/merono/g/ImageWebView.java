@@ -22,6 +22,7 @@ public class ImageWebView extends Activity {
 		setTheme(R.style.ActionBarOverlay);
 		getWindow().requestFeature(Window.FEATURE_PROGRESS);
 		super.onCreate(savedInstanceState);
+		
 		WebView wv = new WebView(this);
 		setContentView(wv);
 

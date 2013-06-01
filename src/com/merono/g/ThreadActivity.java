@@ -15,6 +15,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -47,7 +48,8 @@ public class ThreadActivity extends Activity {
 
 		final ArrayList<Post> postsFromBefore = (ArrayList<Post>) getLastNonConfigurationInstance();
 		if (postsFromBefore == null) {
-			new LoadPostsTask(this).execute(getIntent().getStringExtra(URL));
+			String threadURL = getIntent().getStringExtra(URL) + ".json";
+			new LoadPostsTask(this).execute(threadURL);
 		} else {
 			posts = postsFromBefore;
 			adapter = new PostAdapter(this, R.layout.post_item, posts);
@@ -64,7 +66,7 @@ public class ThreadActivity extends Activity {
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(android.view.Menu menu) {
+	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.thread_menu, menu);
 		return super.onCreateOptionsMenu(menu);
@@ -84,20 +86,16 @@ public class ThreadActivity extends Activity {
 		}
 	}
 
-	void refresh() {
+	private void refresh() {
 		posts.clear();
 		adapter.notifyDataSetChanged();
 
-		new LoadPostsTask(this).execute(getIntent().getStringExtra(URL));
+		String threadURL = getIntent().getStringExtra(URL) + ".json";
+		new LoadPostsTask(this).execute(threadURL);
 	}
 
-	void launchImageBrowser() {
-		ArrayList<Post> images = new ArrayList<Post>();
-		for (Post post : posts) {
-			if (post.hasImgUrl()) {
-				images.add(post);
-			}
-		}
+	private void launchImageBrowser() {
+		ArrayList<Post> images = Post.getImagePosts(posts);
 
 		String[] thumbUrls = new String[images.size()];
 		String[] fullImgUrls = new String[images.size()];
@@ -112,26 +110,26 @@ public class ThreadActivity extends Activity {
 		startActivity(i);
 	}
 
-	void setupOnClickListener(Activity activity) {
+	private void setupOnClickListener(Activity activity) {
 		final ListView lv = (ListView) findViewById(R.id.list);
-
 		final Activity a = activity;
+
 		lv.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long viewId) {
-				ArrayList<String> quoteIds = ((Post) lv
-						.getItemAtPosition(position)).quotes;
+				Post selectedPost = (Post) lv.getItemAtPosition(position);
+				ArrayList<String> quoteIds = selectedPost.quotes;
 				if (quoteIds == null || quoteIds.size() == 0) {
 					return;
 				}
 
-				ArrayList<Post> quotePosts = Post.getQuotedPosts(quoteIds,
+				ArrayList<Post> quotedPosts = Post.getQuotedPosts(quoteIds,
 						posts);
-				quotePosts.add((Post) lv.getItemAtPosition(position));
+				quotedPosts.add(selectedPost);
 
-				View quoteList = new ListView(a);
-				((ListView) quoteList).setAdapter(new PostAdapter(a,
-						R.layout.post_item, quotePosts));
+				ListView quoteList = new ListView(a);
+				quoteList.setAdapter(new PostAdapter(a, R.layout.post_item,
+						quotedPosts));
 
 				new AlertDialog.Builder(a).setView(quoteList).show();
 			}
@@ -152,12 +150,13 @@ public class ThreadActivity extends Activity {
 		});
 	}
 
-	class LoadPostsTask extends AsyncTask<String, Void, ArrayList<Post>> {
+	private class LoadPostsTask extends
+			AsyncTask<String, Void, ArrayList<Post>> {
 		private static final String TAG = "ThreadActivity LoadPosts";
-		Activity activity;
+		Activity mActivity;
 
 		public LoadPostsTask(Activity a) {
-			this.activity = a;
+			mActivity = a;
 		}
 
 		@Override
@@ -168,12 +167,12 @@ public class ThreadActivity extends Activity {
 
 		@Override
 		protected ArrayList<Post> doInBackground(String... params) {
-			String siteJson = Utils.loadSite(params[0] + ".json");
-			posts = new ArrayList<Post>();
+			String siteJson = Utils.loadSite(params[0]);
+			posts = new ArrayList<Post>(1);
 
 			try {
-				JSONObject object = (JSONObject) new JSONTokener(siteJson)
-						.nextValue();
+				JSONObject object;
+				object = (JSONObject) new JSONTokener(siteJson).nextValue();
 				JSONArray allPosts = object.getJSONArray("posts");
 				for (int i = 0; i < allPosts.length(); i++) {
 					posts.add(new Post(allPosts.getJSONObject(i), mBoardName));
@@ -192,12 +191,11 @@ public class ThreadActivity extends Activity {
 			super.onPostExecute(result);
 
 			if (result != null) {
-				final ListView lv = (ListView) findViewById(R.id.list);
-				adapter = new PostAdapter(activity, R.layout.post_item, result);
-				lv.setAdapter(adapter);
-				setupOnClickListener(activity);
+				adapter = new PostAdapter(mActivity, R.layout.post_item, result);
+				((ListView) findViewById(R.id.list)).setAdapter(adapter);
+				setupOnClickListener(mActivity);
 			} else {
-				Toast.makeText(activity, "error", Toast.LENGTH_SHORT).show();
+				Toast.makeText(mActivity, "error", Toast.LENGTH_SHORT).show();
 			}
 			setProgressBarIndeterminateVisibility(false);
 		}

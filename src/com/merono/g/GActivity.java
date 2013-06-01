@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,21 +32,21 @@ import android.widget.Toast;
 
 public class GActivity extends Activity {
 	private static final String TAG = "GActivity";
-	private static final String baseUrl = "https://api.4chan.org/";
-	private static final int NUM_THREADS = 15; // number of threads per board
+	private static final String BASE_API_Url = "https://api.4chan.org/";
+	private static final int NUM_THREADS = 15; // number of threads per page
 
 	static int mPageNum = 0;
 	static String mBoardName = "g";
 	static final String[] threadLinks = new String[NUM_THREADS];
 
-	ArrayList<Post> post = new ArrayList<Post>();
+	ArrayList<Post> post = new ArrayList<Post>(NUM_THREADS);
 	PostAdapter adapter;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-		setContentView(R.layout.gactivity_layout);
+		setContentView(R.layout.thread_layout);
 
 		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
 		SharedPreferences pref = PreferenceManager
@@ -57,7 +58,7 @@ public class GActivity extends Activity {
 			pref.edit().putString("currentBoard", mBoardName).commit();
 			this.setTitle("/" + mBoardName + "/" + " - page " + mPageNum);
 
-			String urlStr = baseUrl + mBoardName + "/" + mPageNum + ".json";
+			String urlStr = BASE_API_Url + mBoardName + "/" + mPageNum + ".json";
 			new LoadThreadsTask(this).execute(urlStr);
 		} else {
 			mBoardName = pref.getString("currentBoard", "g");
@@ -65,7 +66,7 @@ public class GActivity extends Activity {
 
 			post = postsFromBefore;
 			adapter = new PostAdapter(this, R.layout.post_item, post);
-			((ListView) findViewById(R.id.main_list)).setAdapter(adapter);
+			((ListView) findViewById(R.id.list)).setAdapter(adapter);
 			setupOnItemClickListener();
 
 			setProgressBarIndeterminateVisibility(false);
@@ -78,7 +79,7 @@ public class GActivity extends Activity {
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(android.view.Menu menu) {
+	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.main_menu, menu);
 		return super.onCreateOptionsMenu(menu);
@@ -97,15 +98,14 @@ public class GActivity extends Activity {
 			chooseBoard();
 			return true;
 		case R.id.settings:
-			startActivity(new Intent(getApplicationContext(),
-					PrefsActivity.class));
+			startActivity(new Intent(this, PrefsActivity.class));
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
 	}
 
-	void refresh() {
+	private void refresh() {
 		post.clear();
 		if (adapter != null) {
 			adapter.notifyDataSetChanged();
@@ -113,11 +113,11 @@ public class GActivity extends Activity {
 
 		this.setTitle("/" + mBoardName + "/" + " - page " + mPageNum);
 
-		String urlStr = baseUrl + mBoardName + "/" + mPageNum + ".json";
+		String urlStr = BASE_API_Url + mBoardName + "/" + mPageNum + ".json";
 		new LoadThreadsTask(this).execute(urlStr);
 	}
 
-	void choosePage() {
+	private void choosePage() {
 		final NumberPicker pageNumber = new NumberPicker(this);
 		pageNumber.setMinValue(0);
 		pageNumber.setMaxValue(10);
@@ -133,7 +133,8 @@ public class GActivity extends Activity {
 				}).show();
 	}
 
-	void chooseBoard() {
+	private void chooseBoard() {
+		//request focus and finsih when pressing done on keyboard
 		final EditText boardText = new EditText(this);
 		// forces one-line text input
 		boardText.setInputType(InputType.TYPE_CLASS_TEXT);
@@ -153,8 +154,8 @@ public class GActivity extends Activity {
 				}).show();
 	}
 
-	void setupOnItemClickListener() {
-		ListView lv = (ListView) findViewById(R.id.main_list);
+	private void setupOnItemClickListener() {
+		ListView lv = (ListView) findViewById(R.id.list);
 		final Activity a = this;
 
 		lv.setOnItemClickListener(new OnItemClickListener() {
@@ -181,11 +182,11 @@ public class GActivity extends Activity {
 		});
 	}
 
-	class LoadThreadsTask extends AsyncTask<String, Void, ArrayList<Post>> {
-		Activity activity;
+	private class LoadThreadsTask extends AsyncTask<String, Void, ArrayList<Post>> {
+		Activity mActivity;
 
-		LoadThreadsTask(Activity a) {
-			activity = a;
+		public LoadThreadsTask(Activity a) {
+			mActivity = a;
 		}
 
 		@Override
@@ -196,15 +197,15 @@ public class GActivity extends Activity {
 
 		@Override
 		protected ArrayList<Post> doInBackground(String... params) {
-			String siteJson = Utils.loadSite(params[0]);
-			if (siteJson.equals("nofile") || siteJson.equals("error")) {
-				threadLinks[0] = siteJson;
+			String siteJSON = Utils.loadSite(params[0]);
+			if (siteJSON.equals("nofile") || siteJSON.equals("error")) {
+				threadLinks[0] = siteJSON;
 				return null;
 			}
 
 			try {
 				JSONObject object;
-				object = (JSONObject) new JSONTokener(siteJson).nextValue();
+				object = (JSONObject) new JSONTokener(siteJSON).nextValue();
 				JSONArray threads = object.getJSONArray("threads");
 
 				for (int i = 0; i < NUM_THREADS; i++) {
@@ -227,19 +228,19 @@ public class GActivity extends Activity {
 			super.onPostExecute(threads);
 
 			if (threadLinks[0].equals("error")) {
-				Toast.makeText(activity, "Error loading. (IOException)",
+				Toast.makeText(mActivity, "Error loading. (IOException)",
 						Toast.LENGTH_LONG).show();
 				setProgressBarIndeterminateVisibility(false);
 				return;
 			} else if (threadLinks[0].equals("nofile")) {
-				Toast.makeText(activity, "Page does not exist.",
+				Toast.makeText(mActivity, "Page does not exist.",
 						Toast.LENGTH_LONG).show();
 				setProgressBarIndeterminateVisibility(false);
 				return;
 			}
 
-			adapter = new PostAdapter(activity, R.layout.post_item, threads);
-			((ListView) findViewById(R.id.main_list)).setAdapter(adapter);
+			adapter = new PostAdapter(mActivity, R.layout.post_item, threads);
+			((ListView) findViewById(R.id.list)).setAdapter(adapter);
 			setupOnItemClickListener();
 
 			setProgressBarIndeterminateVisibility(false);

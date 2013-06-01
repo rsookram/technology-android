@@ -1,6 +1,8 @@
 package com.merono.g;
 
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,7 +21,7 @@ public class Post {
 		try {
 			body = postJSON.getString("com").replaceAll("<br>", "\n");
 
-			quotes = Utils.extractQuotes(body);
+			quotes = extractQuotes(body);
 
 			body = body.replaceAll("</?.*?>", "");
 			body = Utils.replaceEntities(body);
@@ -36,6 +38,7 @@ public class Post {
 		}
 
 		try {
+			// remove day of the week
 			time = postJSON.getString("now").replaceFirst("\\(.*?\\)", "  ");
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -107,6 +110,29 @@ public class Post {
 		return quotedPosts;
 	}
 
+	public static ArrayList<Post> getImagePosts(ArrayList<Post> posts) {
+		ArrayList<Post> imagePosts = new ArrayList<Post>();
+		for (Post post : posts) {
+			if (post.hasImgUrl()) {
+				imagePosts.add(post);
+			}
+		}
+		return imagePosts;
+	}
+
+	// extract IDs of quotes
+	private static ArrayList<String> extractQuotes(String body) {
+		ArrayList<String> quotes = new ArrayList<String>();
+
+		Pattern quoteIDPattern = Pattern.compile("&gt;&gt;(.*?)<");
+		Matcher m = quoteIDPattern.matcher(body);
+		while (m.find()) {
+			quotes.add(m.group(1));
+		}
+
+		return quotes;
+	}
+	
 	@Override
 	public String toString() {
 		return body;
