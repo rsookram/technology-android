@@ -9,13 +9,13 @@ import org.json.JSONTokener;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -25,7 +25,6 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.Toast;
@@ -58,7 +57,8 @@ public class GActivity extends Activity {
 			pref.edit().putString("currentBoard", mBoardName).commit();
 			this.setTitle("/" + mBoardName + "/" + " - page " + mPageNum);
 
-			String urlStr = BASE_API_Url + mBoardName + "/" + mPageNum + ".json";
+			String urlStr = BASE_API_Url + mBoardName + "/" + mPageNum
+					+ ".json";
 			new LoadThreadsTask(this).execute(urlStr);
 		} else {
 			mBoardName = pref.getString("currentBoard", "g");
@@ -123,35 +123,31 @@ public class GActivity extends Activity {
 		pageNumber.setMaxValue(10);
 		pageNumber.setValue(mPageNum);
 
-		new AlertDialog.Builder(this).setTitle("Choose Page")
+		new AlertDialog.Builder(this)
+				.setTitle("Choose Page")
 				.setView(pageNumber)
-				.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int whichButton) {
-						mPageNum = pageNumber.getValue();
-						refresh();
-					}
-				}).show();
+				.setPositiveButton(android.R.string.ok,
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface d, int button) {
+								mPageNum = pageNumber.getValue();
+								refresh();
+							}
+						}).show();
 	}
 
 	private void chooseBoard() {
-		//request focus and finsih when pressing done on keyboard
-		final EditText boardText = new EditText(this);
-		// forces one-line text input
-		boardText.setInputType(InputType.TYPE_CLASS_TEXT);
+		DialogFragment boardFragment = ChooseBoardDialogFragment
+				.newInstance("Choose Board");
+		boardFragment.show(getFragmentManager(), "choose_board_dialog");
+	}
 
-		new AlertDialog.Builder(this).setTitle("Choose Board")
-				.setView(boardText)
-				.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int whichButton) {
-						mBoardName = boardText.getText().toString();
-						SharedPreferences pref = PreferenceManager
-								.getDefaultSharedPreferences(getBaseContext());
-						pref.edit().putString("currentBoard", mBoardName)
-								.commit();
-						mPageNum = 0;
-						refresh();
-					}
-				}).show();
+	public void switchBoard(String board) {
+		mBoardName = board;
+		SharedPreferences pref = PreferenceManager
+				.getDefaultSharedPreferences(this);
+		pref.edit().putString("currentBoard", mBoardName).commit();
+		mPageNum = 0;
+		refresh();
 	}
 
 	private void setupOnItemClickListener() {
@@ -182,7 +178,8 @@ public class GActivity extends Activity {
 		});
 	}
 
-	private class LoadThreadsTask extends AsyncTask<String, Void, ArrayList<Post>> {
+	private class LoadThreadsTask extends
+			AsyncTask<String, Void, ArrayList<Post>> {
 		Activity mActivity;
 
 		public LoadThreadsTask(Activity a) {
