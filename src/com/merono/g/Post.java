@@ -15,25 +15,24 @@ public class Post {
 	private String imgUrl;
 	private String fullImgUrl;
 
-	ArrayList<String> quotes = null;
+	private ArrayList<String> quoteIds = null;
 
 	Post(JSONObject postJSON, String boardName) {
 		try {
 			body = postJSON.getString("com").replaceAll("<br>", "\n");
 
-			quotes = extractQuotes(body);
+			quoteIds = extractQuoteIds(body);
 
 			body = body.replaceAll("</?.*?>", "");
 			body = Utils.replaceEntities(body);
 		} catch (JSONException e) {
-			e.printStackTrace();
 			body = "";
+			quoteIds = null;
 		}
 
 		try {
 			name = Utils.replaceEntities(postJSON.getString("name"));
 		} catch (JSONException e) {
-			e.printStackTrace();
 			name = "";
 		}
 
@@ -87,6 +86,10 @@ public class Post {
 		return fullImgUrl;
 	}
 
+	public ArrayList<String> getQuoteIds() {
+		return quoteIds;
+	}
+
 	public boolean hasImgUrl() {
 		return !imgUrl.equals("");
 	}
@@ -121,7 +124,7 @@ public class Post {
 	}
 
 	// extract IDs of quotes
-	private static ArrayList<String> extractQuotes(String body) {
+	private static ArrayList<String> extractQuoteIds(String body) {
 		ArrayList<String> quotes = new ArrayList<String>();
 
 		Pattern quoteIDPattern = Pattern.compile("&gt;&gt;(.*?)<");
@@ -131,10 +134,5 @@ public class Post {
 		}
 
 		return quotes;
-	}
-	
-	@Override
-	public String toString() {
-		return body;
 	}
 }

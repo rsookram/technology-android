@@ -62,14 +62,12 @@ public class GActivity extends Activity {
 			loadThreads(BASE_API_Url + mBoardName + "/" + mPageNum + ".json");
 		} else {
 			mBoardName = pref.getString("currentBoard", "g");
-			
-			post = postsFromBefore;
-			adapter = new PostAdapter(this, R.layout.post_item, post);
-			((ListView) findViewById(R.id.list)).setAdapter(adapter);
-			setupOnItemClickListener();
-
-			setProgressBarIndeterminateVisibility(false);
+			post = new ArrayList<Post>(postsFromBefore);
 		}
+
+		adapter = new PostAdapter(this, R.layout.post_item, post);
+		((ListView) findViewById(R.id.list)).setAdapter(adapter);
+		setupOnItemClickListener();
 
 		this.setTitle("/" + mBoardName + "/" + " - page " + mPageNum);
 	}
@@ -185,11 +183,7 @@ public class GActivity extends Activity {
 				new Listener<JSONObject>() {
 					public void onResponse(JSONObject response) {
 						parseJSON(response);
-						adapter = new PostAdapter(GActivity.this,
-								R.layout.post_item, post);
-						((ListView) findViewById(R.id.list))
-								.setAdapter(adapter);
-						setupOnItemClickListener();
+						adapter.notifyDataSetChanged();
 
 						setProgressBarIndeterminateVisibility(false);
 					}

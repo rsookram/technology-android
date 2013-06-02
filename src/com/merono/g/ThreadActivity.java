@@ -34,7 +34,7 @@ public class ThreadActivity extends Activity {
 	private static final String TAG = "ThreadActivity";
 	public static final String URL = "";
 
-	ArrayList<Post> posts = null;
+	ArrayList<Post> posts = new ArrayList<Post>(1);
 	PostAdapter adapter;
 	String mBoardName;
 
@@ -54,13 +54,12 @@ public class ThreadActivity extends Activity {
 		if (postsFromBefore == null) {
 			loadPosts(getIntent().getStringExtra(URL) + ".json");
 		} else {
-			posts = postsFromBefore;
-			adapter = new PostAdapter(this, R.layout.post_item, posts);
-			((ListView) findViewById(R.id.list)).setAdapter(adapter);
-			setupOnClickListener(this);
-
-			setProgressBarIndeterminateVisibility(false);
+			posts = new ArrayList<Post>(postsFromBefore);
 		}
+
+		adapter = new PostAdapter(this, R.layout.post_item, posts);
+		((ListView) findViewById(R.id.list)).setAdapter(adapter);
+		setupOnClickListener(this);
 	}
 
 	@Override
@@ -123,7 +122,7 @@ public class ThreadActivity extends Activity {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long viewId) {
 				Post selectedPost = (Post) lv.getItemAtPosition(position);
-				ArrayList<String> quoteIds = selectedPost.quotes;
+				ArrayList<String> quoteIds = selectedPost.getQuoteIds();
 				if (quoteIds == null || quoteIds.size() == 0) {
 					return;
 				}
@@ -162,13 +161,8 @@ public class ThreadActivity extends Activity {
 		appState.mRequestQueue.add(new JsonObjectRequest(Method.GET, url, null,
 				new Listener<JSONObject>() {
 					public void onResponse(JSONObject response) {
-						posts = new ArrayList<Post>(1);
 						parseJSON(response);
-						adapter = new PostAdapter(ThreadActivity.this,
-								R.layout.post_item, posts);
-						((ListView) findViewById(R.id.list))
-								.setAdapter(adapter);
-						setupOnClickListener(ThreadActivity.this);
+						adapter.notifyDataSetChanged();
 
 						setProgressBarIndeterminateVisibility(false);
 					}
