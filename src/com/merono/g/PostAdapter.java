@@ -8,18 +8,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.android.volley.toolbox.NetworkImageView;
 
 public class PostAdapter extends ArrayAdapter<Post> {
 	private int postItemResourceId;
 	private Activity mActivity;
 
-	public PostAdapter(Activity activity, int textViewResourceId,
-			ArrayList<Post> posts) {
-		super(activity, textViewResourceId, posts);
+	public PostAdapter(Activity a, int textViewResourceId, ArrayList<Post> posts) {
+		super(a, textViewResourceId, posts);
 		postItemResourceId = textViewResourceId;
-		mActivity = activity;
+		mActivity = a;
 	}
 
 	@Override
@@ -38,8 +38,9 @@ public class PostAdapter extends ArrayAdapter<Post> {
 			viewHolder.imageView.setVisibility(View.GONE);
 		} else {
 			viewHolder.imageView.setVisibility(View.VISIBLE);
-			GApplication appState = ((GApplication) mActivity.getApplication());
-			appState.loadBitmap(entry.getImgURL(), viewHolder.imageView);
+			GApplication appState = (GApplication) mActivity.getApplication();
+			viewHolder.imageView.setImageUrl(entry.getImgURL(),
+					appState.mImageLoader);
 		}
 
 		return view;
@@ -65,7 +66,7 @@ public class PostAdapter extends ArrayAdapter<Post> {
 		public TextView timeView;
 		public TextView idView;
 		public TextView bodyView;
-		public ImageView imageView;
+		public NetworkImageView imageView;
 	}
 
 	private ViewHolder getViewHolder(final View workingView) {
@@ -85,7 +86,7 @@ public class PostAdapter extends ArrayAdapter<Post> {
 					.findViewById(R.id.post_id);
 			viewHolder.bodyView = (TextView) workingView
 					.findViewById(R.id.post_body);
-			viewHolder.imageView = (ImageView) workingView
+			viewHolder.imageView = (NetworkImageView) workingView
 					.findViewById(R.id.post_img);
 
 			workingView.setTag(viewHolder);

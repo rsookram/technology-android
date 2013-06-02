@@ -11,7 +11,9 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
-import android.widget.ImageView;
+import android.widget.ImageView.ScaleType;
+
+import com.android.volley.toolbox.NetworkImageView;
 
 public class ImageBrowser extends Activity {
 	String[] thumbs;
@@ -63,20 +65,18 @@ public class ImageBrowser extends Activity {
 		}
 
 		public View getView(int position, View convertView, ViewGroup parent) {
-			ImageView imageView;
-			if (convertView == null) {
-				// if it's not recycled, init some attributes
-				imageView = new ImageView(mActivity);
-				imageView.setLayoutParams(new GridView.LayoutParams(240, 240));
-				imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-			} else {
-				imageView = (ImageView) convertView;
+			NetworkImageView niv = (NetworkImageView) convertView;
+			if (niv == null) {
+				niv = new NetworkImageView(mActivity);
+				niv.setLayoutParams(new GridView.LayoutParams(240, 240));
+				niv.setScaleType(ScaleType.CENTER_CROP);
+				niv.setDefaultImageResId(R.drawable.ic_icon);
+				niv.setErrorImageResId(android.R.drawable.ic_dialog_alert);
 			}
 
-			GApplication appState = ((GApplication) mActivity.getApplication());
-			appState.loadBitmap(getItem(position), imageView);
-
-			return imageView;
+			GApplication appState = (GApplication) mActivity.getApplication();
+			niv.setImageUrl(getItem(position), appState.mImageLoader);
+			return niv;
 		}
 	}
 }

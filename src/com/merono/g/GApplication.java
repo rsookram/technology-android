@@ -4,40 +4,47 @@ import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.util.LruCache;
-import android.widget.ImageView;
+
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.ImageLoader;
+import com.android.volley.toolbox.ImageLoader.ImageCache;
+import com.android.volley.toolbox.Volley;
 
 public class GApplication extends Application {
-	private static final String TAG = "GApplication";
-	private LruCache<String, Bitmap> mMemoryCache = null;
+	public RequestQueue mRequestQueue;
+	public ImageLoader mImageLoader;
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		initCache();
-	}
+		mRequestQueue = Volley.newRequestQueue(this);
 
-	private void initCache() {
 		int memClass = ((ActivityManager) this
 				.getSystemService(Context.ACTIVITY_SERVICE)).getMemoryClass();
-		int cacheSize = 1024 * 1024 * memClass / 8;
-
-		Log.d(TAG, "Initializing cache to:" + cacheSize + " bytes");
-		mMemoryCache = new LruCache<String, Bitmap>(cacheSize) {
-			@Override
-			protected int sizeOf(String key, Bitmap bitmap) {
-				return bitmap.getByteCount(); // cache size measured in bytes
-			}
-		};
+		int maxSize = 1024 * 1024 * memClass / 8;
+		mImageLoader = new ImageLoader(mRequestQueue, new LruBitmapCache(
+				maxSize));
 	}
 
-	public void loadBitmap(String key, ImageView iv) {
-		Bitmap b = mMemoryCache.get(key);
-		if (b != null) {
-			iv.setImageBitmap(b);
-		} else {
-			new BitmapWorkerTask(iv, mMemoryCache).execute(key);
+	public class LruBitmapCache extends LruCache<String, Bitmap> implements
+			ImageCache {
+
+		public LruBitmapCache(int maxSize) {
+			super(maxSize);
+		}
+
+		@Override
+		protected int sizeOf(String key, Bitmap value) {
+			return value.getRowBytes() * value.getHeight();
+		}
+
+		public Bitmap getBitmap(String url) {
+			return get(url);
+		}
+
+		public void putBitmap(String url, Bitmap bitmap) {
+			put(url, bitmap);
 		}
 	}
 }
