@@ -5,13 +5,11 @@ import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -25,6 +23,12 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.android.volley.Request.Method;
+import com.android.volley.Response.ErrorListener;
+import com.android.volley.Response.Listener;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 
 public class ThreadActivity extends Activity {
 	private static final String TAG = "ThreadActivity";
@@ -48,8 +52,7 @@ public class ThreadActivity extends Activity {
 
 		final ArrayList<Post> postsFromBefore = (ArrayList<Post>) getLastNonConfigurationInstance();
 		if (postsFromBefore == null) {
-			String threadURL = getIntent().getStringExtra(URL) + ".json";
-			new LoadPostsTask(this).execute(threadURL);
+			loadPosts(getIntent().getStringExtra(URL) + ".json");
 		} else {
 			posts = postsFromBefore;
 			adapter = new PostAdapter(this, R.layout.post_item, posts);
@@ -87,11 +90,13 @@ public class ThreadActivity extends Activity {
 	}
 
 	private void refresh() {
-		posts.clear();
-		adapter.notifyDataSetChanged();
-
-		String threadURL = getIntent().getStringExtra(URL) + ".json";
-		new LoadPostsTask(this).execute(threadURL);
+		if (posts != null) {
+			posts.clear();
+		}
+		if (adapter != null) {
+			adapter.notifyDataSetChanged();
+		}
+		loadPosts(getIntent().getStringExtra(URL) + ".json");
 	}
 
 	private void launchImageBrowser() {
@@ -150,54 +155,41 @@ public class ThreadActivity extends Activity {
 		});
 	}
 
-	private class LoadPostsTask extends
-			AsyncTask<String, Void, ArrayList<Post>> {
-		private static final String TAG = "ThreadActivity LoadPosts";
-		Activity mActivity;
+	private void loadPosts(String url) {
+		setProgressBarIndeterminateVisibility(true);
 
-		public LoadPostsTask(Activity a) {
-			mActivity = a;
-		}
+		GApplication appState = (GApplication) getApplication();
+		appState.mRequestQueue.add(new JsonObjectRequest(Method.GET, url, null,
+				new Listener<JSONObject>() {
+					public void onResponse(JSONObject response) {
+						posts = new ArrayList<Post>(1);
+						parseJSON(response);
+						adapter = new PostAdapter(ThreadActivity.this,
+								R.layout.post_item, posts);
+						((ListView) findViewById(R.id.list))
+								.setAdapter(adapter);
+						setupOnClickListener(ThreadActivity.this);
 
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-			setProgressBarIndeterminateVisibility(true);
-		}
+						setProgressBarIndeterminateVisibility(false);
+					}
+				}, new ErrorListener() {
+					public void onErrorResponse(VolleyError error) {
+						Toast.makeText(ThreadActivity.this, error.getMessage(),
+								Toast.LENGTH_LONG).show();
+						setProgressBarIndeterminateVisibility(false);
+					}
+				}));
+		appState.mRequestQueue.start();
+	}
 
-		@Override
-		protected ArrayList<Post> doInBackground(String... params) {
-			String siteJson = Utils.loadSite(params[0]);
-			posts = new ArrayList<Post>(1);
-
-			try {
-				JSONObject object;
-				object = (JSONObject) new JSONTokener(siteJson).nextValue();
-				JSONArray allPosts = object.getJSONArray("posts");
-				for (int i = 0; i < allPosts.length(); i++) {
-					posts.add(new Post(allPosts.getJSONObject(i), mBoardName));
-				}
-
-				Log.d(TAG, "finished parsing posts");
-				return posts;
-			} catch (JSONException e) {
-				e.printStackTrace();
-				return null;
+	private void parseJSON(JSONObject json) {
+		try {
+			JSONArray allPosts = json.getJSONArray("posts");
+			for (int i = 0; i < allPosts.length(); i++) {
+				posts.add(new Post(allPosts.getJSONObject(i), mBoardName));
 			}
-		}
-
-		@Override
-		protected void onPostExecute(ArrayList<Post> result) {
-			super.onPostExecute(result);
-
-			if (result != null) {
-				adapter = new PostAdapter(mActivity, R.layout.post_item, result);
-				((ListView) findViewById(R.id.list)).setAdapter(adapter);
-				setupOnClickListener(mActivity);
-			} else {
-				Toast.makeText(mActivity, "error", Toast.LENGTH_SHORT).show();
-			}
-			setProgressBarIndeterminateVisibility(false);
+		} catch (JSONException e) {
+			e.printStackTrace();
 		}
 	}
 }

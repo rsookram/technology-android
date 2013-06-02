@@ -1,43 +1,9 @@
 package com.merono.g;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import android.util.Log;
-
 public class Utils {
-	private static final String TAG = "Utils";
-
-	public static String loadSite(String urlToLoad) {
-		try {
-			URLConnection conn = new URL(urlToLoad).openConnection();
-			BufferedReader rd = new BufferedReader(new InputStreamReader(
-					conn.getInputStream()), 8 * 1024);
-
-			StringBuffer sb = new StringBuffer();
-			String line;
-			while ((line = rd.readLine()) != null) {
-				sb.append(line);
-			}
-			rd.close();
-			return sb.toString();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			Log.e(TAG, "FileNotFoundException: " + urlToLoad);
-			return "nofile";
-		} catch (IOException e) {
-			e.printStackTrace();
-			Log.e(TAG, "IOException");
-			return "error";
-		}
-	}
-
 	public static String replaceEntities(String s) {
 		return s.replaceAll("&quot;", "\"").replaceAll("&gt;", ">")
 				.replaceAll("&lt;", "<").replaceAll("&amp;", "&")

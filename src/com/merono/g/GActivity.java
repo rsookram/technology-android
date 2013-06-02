@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -13,10 +12,8 @@ import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -28,6 +25,12 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.Toast;
+
+import com.android.volley.Request.Method;
+import com.android.volley.Response.ErrorListener;
+import com.android.volley.Response.Listener;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
 
 public class GActivity extends Activity {
 	private static final String TAG = "GActivity";
@@ -55,15 +58,11 @@ public class GActivity extends Activity {
 		if (postsFromBefore == null) {
 			mBoardName = pref.getString("board", "g");
 			pref.edit().putString("currentBoard", mBoardName).commit();
-			this.setTitle("/" + mBoardName + "/" + " - page " + mPageNum);
 
-			String urlStr = BASE_API_Url + mBoardName + "/" + mPageNum
-					+ ".json";
-			new LoadThreadsTask(this).execute(urlStr);
+			loadThreads(BASE_API_Url + mBoardName + "/" + mPageNum + ".json");
 		} else {
 			mBoardName = pref.getString("currentBoard", "g");
-			this.setTitle("/" + mBoardName + "/" + " - page " + mPageNum);
-
+			
 			post = postsFromBefore;
 			adapter = new PostAdapter(this, R.layout.post_item, post);
 			((ListView) findViewById(R.id.list)).setAdapter(adapter);
@@ -71,6 +70,8 @@ public class GActivity extends Activity {
 
 			setProgressBarIndeterminateVisibility(false);
 		}
+
+		this.setTitle("/" + mBoardName + "/" + " - page " + mPageNum);
 	}
 
 	@Override
@@ -113,8 +114,7 @@ public class GActivity extends Activity {
 
 		this.setTitle("/" + mBoardName + "/" + " - page " + mPageNum);
 
-		String urlStr = BASE_API_Url + mBoardName + "/" + mPageNum + ".json";
-		new LoadThreadsTask(this).execute(urlStr);
+		loadThreads(BASE_API_Url + mBoardName + "/" + mPageNum + ".json");
 	}
 
 	private void choosePage() {
@@ -174,73 +174,47 @@ public class GActivity extends Activity {
 				startActivity(intent);
 				return true;
 			}
-
 		});
 	}
 
-	private class LoadThreadsTask extends
-			AsyncTask<String, Void, ArrayList<Post>> {
-		Activity mActivity;
+	private void loadThreads(String url) {
+		setProgressBarIndeterminateVisibility(true);
 
-		public LoadThreadsTask(Activity a) {
-			mActivity = a;
-		}
+		GApplication appState = (GApplication) getApplication();
+		appState.mRequestQueue.add(new JsonObjectRequest(Method.GET, url, null,
+				new Listener<JSONObject>() {
+					public void onResponse(JSONObject response) {
+						parseJSON(response);
+						adapter = new PostAdapter(GActivity.this,
+								R.layout.post_item, post);
+						((ListView) findViewById(R.id.list))
+								.setAdapter(adapter);
+						setupOnItemClickListener();
 
-		@Override
-		protected void onPreExecute() {
-			super.onPreExecute();
-			setProgressBarIndeterminateVisibility(true);
-		}
+						setProgressBarIndeterminateVisibility(false);
+					}
+				}, new ErrorListener() {
+					public void onErrorResponse(VolleyError error) {
+						Toast.makeText(GActivity.this, error.getMessage(),
+								Toast.LENGTH_LONG).show();
+						setProgressBarIndeterminateVisibility(false);
+					}
+				}));
+		appState.mRequestQueue.start();
+	}
 
-		@Override
-		protected ArrayList<Post> doInBackground(String... params) {
-			String siteJSON = Utils.loadSite(params[0]);
-			if (siteJSON.equals("nofile") || siteJSON.equals("error")) {
-				threadLinks[0] = siteJSON;
-				return null;
+	private void parseJSON(JSONObject json) {
+		try {
+			JSONArray threads = json.getJSONArray("threads");
+			for (int i = 0; i < NUM_THREADS; i++) {
+				JSONArray posts = threads.getJSONObject(i)
+						.getJSONArray("posts");
+				post.add(new Post(posts.getJSONObject(0), mBoardName));
+				threadLinks[i] = "https://boards.4chan.org/" + mBoardName
+						+ "/res/" + posts.getJSONObject(0).getInt("no");
 			}
-
-			try {
-				JSONObject object;
-				object = (JSONObject) new JSONTokener(siteJSON).nextValue();
-				JSONArray threads = object.getJSONArray("threads");
-
-				for (int i = 0; i < NUM_THREADS; i++) {
-					JSONArray posts = threads.getJSONObject(i).getJSONArray(
-							"posts");
-					post.add(new Post(posts.getJSONObject(0), mBoardName));
-					threadLinks[i] = "https://boards.4chan.org/" + mBoardName
-							+ "/res/" + posts.getJSONObject(0).getInt("no");
-				}
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-
-			Log.d(TAG, "end threads parsing");
-			return post;
-		}
-
-		@Override
-		protected void onPostExecute(ArrayList<Post> threads) {
-			super.onPostExecute(threads);
-
-			if (threadLinks[0].equals("error")) {
-				Toast.makeText(mActivity, "Error loading. (IOException)",
-						Toast.LENGTH_LONG).show();
-				setProgressBarIndeterminateVisibility(false);
-				return;
-			} else if (threadLinks[0].equals("nofile")) {
-				Toast.makeText(mActivity, "Page does not exist.",
-						Toast.LENGTH_LONG).show();
-				setProgressBarIndeterminateVisibility(false);
-				return;
-			}
-
-			adapter = new PostAdapter(mActivity, R.layout.post_item, threads);
-			((ListView) findViewById(R.id.list)).setAdapter(adapter);
-			setupOnItemClickListener();
-
-			setProgressBarIndeterminateVisibility(false);
+		} catch (JSONException e) {
+			e.printStackTrace();
 		}
 	}
 }
