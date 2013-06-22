@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.widget.NumberPicker;
 
 public class PagePickerDialogFragment extends DialogFragment {
+	private static final String TITLE = "Choose Page";
+
 	private NumberPicker mPagePicker;
 
 	public static PagePickerDialogFragment newInstance(int currentPage) {
@@ -33,7 +35,7 @@ public class PagePickerDialogFragment extends DialogFragment {
 		mPagePicker.setValue(pageNum);
 
 		return new AlertDialog.Builder(getActivity())
-				.setTitle("Choose Page")
+				.setTitle(TITLE)
 				.setView(mPagePicker)
 				.setPositiveButton(android.R.string.ok,
 						new DialogInterface.OnClickListener() {

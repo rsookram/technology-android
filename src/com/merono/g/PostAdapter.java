@@ -23,8 +23,7 @@ public class PostAdapter extends ArrayAdapter<Post> {
 	}
 
 	@Override
-	public View getView(final int position, final View convertView,
-			final ViewGroup parent) {
+	public View getView(int position, final View convertView, ViewGroup parent) {
 		final View view = getWorkingView(convertView);
 		final ViewHolder viewHolder = getViewHolder(view);
 		final Post entry = getItem(position);
@@ -47,10 +46,10 @@ public class PostAdapter extends ArrayAdapter<Post> {
 	}
 
 	private View getWorkingView(final View convertView) {
-		View workingView = null;
+		View workingView;
 
 		if (convertView == null) {
-			final LayoutInflater inflater = (LayoutInflater) getContext()
+			LayoutInflater inflater = (LayoutInflater) mActivity
 					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
 			workingView = inflater.inflate(postItemResourceId, null);
@@ -73,7 +72,7 @@ public class PostAdapter extends ArrayAdapter<Post> {
 		// The viewHolder allows us to avoid re-looking up view references
 		// Since views are recycled, these references will never change
 		final Object tag = workingView.getTag();
-		ViewHolder viewHolder = null;
+		ViewHolder viewHolder;
 
 		if (tag == null || !(tag instanceof ViewHolder)) {
 			viewHolder = new ViewHolder();

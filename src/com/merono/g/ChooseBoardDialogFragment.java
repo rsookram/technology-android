@@ -16,42 +16,34 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 public class ChooseBoardDialogFragment extends DialogFragment {
+	private static final String TITLE = "Choose Board";
 
-	EditText mEditText;
-
-	public static ChooseBoardDialogFragment newInstance() {
-		ChooseBoardDialogFragment frag = new ChooseBoardDialogFragment();
-		return frag;
-	}
+	private EditText mEditText;
 
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		mEditText = new EditText(getActivity());
 		mEditText.setInputType(InputType.TYPE_CLASS_TEXT); // force one-line
 
-		final DialogFragment frag = this;
 		mEditText
 				.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 					public boolean onEditorAction(TextView v, int actionId,
 							KeyEvent event) {
 						if (actionId == EditorInfo.IME_ACTION_DONE) {
-							String boardText = mEditText.getText().toString();
-							((GActivity) getActivity()).switchBoard(boardText);
-							frag.dismiss();
+							switchBoard(mEditText.getText().toString());
+							ChooseBoardDialogFragment.this.dismiss();
 						}
 						return false;
 					}
 				});
 
 		return new AlertDialog.Builder(getActivity())
-				.setTitle("Choose Board")
+				.setTitle(TITLE)
 				.setView(mEditText)
 				.setPositiveButton(android.R.string.ok,
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface d, int button) {
-								((GActivity) getActivity())
-										.switchBoard(mEditText.getText()
-												.toString());
+								switchBoard(mEditText.getText().toString());
 							}
 						}).create();
 	}
@@ -69,5 +61,9 @@ public class ChooseBoardDialogFragment extends DialogFragment {
 				}
 			}
 		});
+	}
+
+	private void switchBoard(String boardName) {
+		((GActivity) getActivity()).switchBoard(boardName);
 	}
 }

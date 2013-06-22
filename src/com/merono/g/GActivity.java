@@ -121,7 +121,7 @@ public class GActivity extends Activity {
 	}
 
 	private void chooseBoard() {
-		DialogFragment boardFragment = ChooseBoardDialogFragment.newInstance();
+		DialogFragment boardFragment = new ChooseBoardDialogFragment();
 		boardFragment.show(getFragmentManager(), "choose_board_dialog");
 	}
 
