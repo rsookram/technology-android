@@ -59,7 +59,7 @@ public class ThreadActivity extends Activity {
 
 		adapter = new PostAdapter(this, R.layout.post_item, posts);
 		((ListView) findViewById(R.id.list)).setAdapter(adapter);
-		setupOnClickListener(this);
+		setupOnClickListener();
 	}
 
 	@Override
@@ -114,9 +114,9 @@ public class ThreadActivity extends Activity {
 		startActivity(i);
 	}
 
-	private void setupOnClickListener(Activity activity) {
+	private void setupOnClickListener() {
 		final ListView lv = (ListView) findViewById(R.id.list);
-		final Activity a = activity;
+		final Activity a = this;
 
 		lv.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
@@ -139,7 +139,7 @@ public class ThreadActivity extends Activity {
 			}
 		});
 
-		final Intent intent = new Intent(activity, ImageWebView.class);
+		final Intent intent = new Intent(a, ImageWebView.class);
 		lv.setOnItemLongClickListener(new OnItemLongClickListener() {
 			public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
 					int position, long arg3) {

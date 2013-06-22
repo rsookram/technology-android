@@ -19,18 +19,13 @@ public class ChooseBoardDialogFragment extends DialogFragment {
 
 	EditText mEditText;
 
-	public static ChooseBoardDialogFragment newInstance(String title) {
+	public static ChooseBoardDialogFragment newInstance() {
 		ChooseBoardDialogFragment frag = new ChooseBoardDialogFragment();
-		Bundle args = new Bundle();
-		args.putString("title", title);
-		frag.setArguments(args);
 		return frag;
 	}
 
 	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
-		String title = getArguments().getString("title");
-
 		mEditText = new EditText(getActivity());
 		mEditText.setInputType(InputType.TYPE_CLASS_TEXT); // force one-line
 
@@ -40,8 +35,8 @@ public class ChooseBoardDialogFragment extends DialogFragment {
 					public boolean onEditorAction(TextView v, int actionId,
 							KeyEvent event) {
 						if (actionId == EditorInfo.IME_ACTION_DONE) {
-							((GActivity) getActivity()).switchBoard(mEditText
-									.getText().toString());
+							String boardText = mEditText.getText().toString();
+							((GActivity) getActivity()).switchBoard(boardText);
 							frag.dismiss();
 						}
 						return false;
@@ -49,7 +44,7 @@ public class ChooseBoardDialogFragment extends DialogFragment {
 				});
 
 		return new AlertDialog.Builder(getActivity())
-				.setTitle(title)
+				.setTitle("Choose Board")
 				.setView(mEditText)
 				.setPositiveButton(android.R.string.ok,
 						new DialogInterface.OnClickListener() {

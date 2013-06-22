@@ -7,9 +7,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.DialogFragment;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -23,7 +21,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
-import android.widget.NumberPicker;
 import android.widget.Toast;
 
 import com.android.volley.Request.Method;
@@ -88,7 +85,7 @@ public class GActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.refresh:
-			refresh();
+			refresh(mPageNum);
 			return true;
 		case R.id.choose_page:
 			choosePage();
@@ -104,7 +101,9 @@ public class GActivity extends Activity {
 		}
 	}
 
-	private void refresh() {
+	public void refresh(int pageToLoad) {
+		mPageNum = pageToLoad;
+
 		post.clear();
 		if (adapter != null) {
 			adapter.notifyDataSetChanged();
@@ -116,26 +115,13 @@ public class GActivity extends Activity {
 	}
 
 	private void choosePage() {
-		final NumberPicker pageNumber = new NumberPicker(this);
-		pageNumber.setMinValue(0);
-		pageNumber.setMaxValue(10);
-		pageNumber.setValue(mPageNum);
-
-		new AlertDialog.Builder(this)
-				.setTitle("Choose Page")
-				.setView(pageNumber)
-				.setPositiveButton(android.R.string.ok,
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface d, int button) {
-								mPageNum = pageNumber.getValue();
-								refresh();
-							}
-						}).show();
+		DialogFragment pageFragment = PagePickerDialogFragment
+				.newInstance(mPageNum);
+		pageFragment.show(getFragmentManager(), "choose_page_dialog");
 	}
 
 	private void chooseBoard() {
-		DialogFragment boardFragment = ChooseBoardDialogFragment
-				.newInstance("Choose Board");
+		DialogFragment boardFragment = ChooseBoardDialogFragment.newInstance();
 		boardFragment.show(getFragmentManager(), "choose_board_dialog");
 	}
 
@@ -145,7 +131,7 @@ public class GActivity extends Activity {
 				.getDefaultSharedPreferences(this);
 		pref.edit().putString("currentBoard", mBoardName).commit();
 		mPageNum = 0;
-		refresh();
+		refresh(mPageNum);
 	}
 
 	private void setupOnItemClickListener() {
