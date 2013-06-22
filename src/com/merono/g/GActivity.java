@@ -31,11 +31,11 @@ import com.android.volley.toolbox.JsonObjectRequest;
 
 public class GActivity extends Activity {
 	private static final String TAG = "GActivity";
-	private static final String BASE_API_Url = "https://api.4chan.org/";
+	private static final String BASE_API_URL = "https://api.4chan.org";
 	private static final int NUM_THREADS = 15; // number of threads per page
 
 	static int mPageNum = 0;
-	static String mBoardName = "g";
+	static String mBoardName;
 	static final String[] threadLinks = new String[NUM_THREADS];
 
 	ArrayList<Post> post = new ArrayList<Post>(NUM_THREADS);
@@ -53,12 +53,12 @@ public class GActivity extends Activity {
 
 		final ArrayList<Post> postsFromBefore = (ArrayList<Post>) getLastNonConfigurationInstance();
 		if (postsFromBefore == null) {
-			mBoardName = pref.getString("board", "g");
+			mBoardName = pref.getString("board", "/g/");
 			pref.edit().putString("currentBoard", mBoardName).commit();
 
-			loadThreads(BASE_API_Url + mBoardName + "/" + mPageNum + ".json");
+			loadThreads(BASE_API_URL + mBoardName + mPageNum + ".json");
 		} else {
-			mBoardName = pref.getString("currentBoard", "g");
+			mBoardName = pref.getString("currentBoard", "/g/");
 			post = new ArrayList<Post>(postsFromBefore);
 		}
 
@@ -66,7 +66,7 @@ public class GActivity extends Activity {
 		((ListView) findViewById(R.id.list)).setAdapter(adapter);
 		setupOnItemClickListener();
 
-		this.setTitle("/" + mBoardName + "/" + " - page " + mPageNum);
+		setTitle(mBoardName + " - page " + mPageNum);
 	}
 
 	@Override
@@ -109,9 +109,9 @@ public class GActivity extends Activity {
 			adapter.notifyDataSetChanged();
 		}
 
-		this.setTitle("/" + mBoardName + "/" + " - page " + mPageNum);
+		setTitle(mBoardName + " - page " + mPageNum);
 
-		loadThreads(BASE_API_Url + mBoardName + "/" + mPageNum + ".json");
+		loadThreads(BASE_API_URL + mBoardName + mPageNum + ".json");
 	}
 
 	private void choosePage() {
@@ -126,7 +126,7 @@ public class GActivity extends Activity {
 	}
 
 	public void switchBoard(String board) {
-		mBoardName = board;
+		mBoardName = Utils.cleanBoardName(board);
 		SharedPreferences pref = PreferenceManager
 				.getDefaultSharedPreferences(this);
 		pref.edit().putString("currentBoard", mBoardName).commit();
@@ -190,8 +190,8 @@ public class GActivity extends Activity {
 				JSONArray posts = threads.getJSONObject(i)
 						.getJSONArray("posts");
 				post.add(new Post(posts.getJSONObject(0), mBoardName));
-				threadLinks[i] = "https://boards.4chan.org/" + mBoardName
-						+ "/res/" + posts.getJSONObject(0).getInt("no");
+				threadLinks[i] = "https://boards.4chan.org" + mBoardName
+						+ "res/" + posts.getJSONObject(0).getInt("no");
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();

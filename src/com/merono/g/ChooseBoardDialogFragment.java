@@ -25,6 +25,10 @@ public class ChooseBoardDialogFragment extends DialogFragment {
 		mEditText = new EditText(getActivity());
 		mEditText.setInputType(InputType.TYPE_CLASS_TEXT); // force one-line
 
+		if (savedInstanceState != null) {
+			mEditText.setText(savedInstanceState.getString("board_text"));
+		}
+
 		mEditText
 				.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 					public boolean onEditorAction(TextView v, int actionId,
@@ -53,14 +57,20 @@ public class ChooseBoardDialogFragment extends DialogFragment {
 		super.onStart();
 
 		// make the keyboard appear when dialog appears (only in portrait)
-		final Window window = this.getDialog().getWindow();
 		mEditText.setOnFocusChangeListener(new OnFocusChangeListener() {
 			public void onFocusChange(View v, boolean hasFocus) {
 				if (hasFocus) {
+					Window window = getDialog().getWindow();
 					window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
 				}
 			}
 		});
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		outState.putString("board_text", mEditText.getText().toString());
+		super.onSaveInstanceState(outState);
 	}
 
 	private void switchBoard(String boardName) {

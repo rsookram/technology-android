@@ -22,15 +22,13 @@ public class ImageWebView extends Activity {
 		setTheme(R.style.ActionBarOverlay);
 		getWindow().requestFeature(Window.FEATURE_PROGRESS);
 		super.onCreate(savedInstanceState);
-		
+
 		WebView wv = new WebView(this);
 		setContentView(wv);
 
 		SharedPreferences pref = PreferenceManager
 				.getDefaultSharedPreferences(this);
-		setTitle("/" + pref.getString("currentBoard", "g") + "/");
-
-		disableDoubleTapToast();
+		setTitle(pref.getString("currentBoard", "/g/"));
 
 		WebSettings ws = wv.getSettings();
 		ws.setLoadWithOverviewMode(true);
@@ -38,19 +36,20 @@ public class ImageWebView extends Activity {
 		ws.setBuiltInZoomControls(true);
 		ws.setDisplayZoomControls(pref.getBoolean("zoom_imageviewer", false));
 
-		final Activity activity = this;
+		disableDoubleTapToast();
+
 		wv.setWebChromeClient(new WebChromeClient() {
 			@Override
 			public void onProgressChanged(WebView view, int newProgress) {
 				super.onProgressChanged(view, newProgress);
-				activity.setProgress(newProgress * 100);
+				ImageWebView.this.setProgress(newProgress * 100);
 			}
 		});
 		wv.setWebViewClient(new WebViewClient() {
 			@Override
 			public void onPageFinished(WebView view, String url) {
 				super.onPageFinished(view, url);
-				activity.getActionBar().hide();
+				ImageWebView.this.getActionBar().hide();
 			}
 		});
 

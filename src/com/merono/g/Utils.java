@@ -35,4 +35,12 @@ public class Utils {
 		}
 		return toChange;
 	}
+
+	public static String cleanBoardName(String board) {
+		if (board.startsWith("/") && board.endsWith("/")) {
+			return board;
+		} else {
+			return "/" + board + "/";
+		}
+	}
 }

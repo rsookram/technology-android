@@ -47,14 +47,14 @@ public class ThreadActivity extends Activity {
 
 		SharedPreferences pref = PreferenceManager
 				.getDefaultSharedPreferences(this);
-		mBoardName = pref.getString("currentBoard", "g");
-		this.setTitle("/" + mBoardName + "/");
+		mBoardName = pref.getString("currentBoard", "/g/");
+		setTitle(mBoardName);
 
-		final ArrayList<Post> postsFromBefore = (ArrayList<Post>) getLastNonConfigurationInstance();
-		if (postsFromBefore == null) {
+		ArrayList<Post> savedPosts = (ArrayList<Post>) getLastNonConfigurationInstance();
+		if (savedPosts == null) {
 			loadPosts(getIntent().getStringExtra(URL) + ".json");
 		} else {
-			posts = new ArrayList<Post>(postsFromBefore);
+			posts = new ArrayList<Post>(savedPosts);
 		}
 
 		adapter = new PostAdapter(this, R.layout.post_item, posts);

@@ -15,9 +15,9 @@ public class Post {
 	private String imgUrl;
 	private String fullImgUrl;
 
-	private ArrayList<String> quoteIds = null;
+	private ArrayList<String> quoteIds;
 
-	Post(JSONObject postJSON, String boardName) {
+	public Post(JSONObject postJSON, String boardName) {
 		try {
 			body = postJSON.getString("com").replaceAll("<br>", "\n");
 
@@ -52,9 +52,9 @@ public class Post {
 		}
 
 		try {
-			imgUrl = "https://thumbs.4chan.org/" + boardName + "/thumb/"
+			imgUrl = "https://thumbs.4chan.org" + boardName + "thumb/"
 					+ postJSON.getLong("tim") + "s.jpg";
-			fullImgUrl = "https://images.4chan.org/" + boardName + "/src/"
+			fullImgUrl = "https://images.4chan.org" + boardName + "src/"
 					+ postJSON.getLong("tim") + postJSON.getString("ext");
 		} catch (JSONException e) {
 			imgUrl = "";

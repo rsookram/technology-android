@@ -20,8 +20,8 @@ public class GApplication extends Application {
 		super.onCreate();
 		mRequestQueue = Volley.newRequestQueue(this);
 
-		int memClass = ((ActivityManager) this
-				.getSystemService(Context.ACTIVITY_SERVICE)).getMemoryClass();
+		int memClass = ((ActivityManager) getSystemService(Context.ACTIVITY_SERVICE))
+				.getMemoryClass();
 		int maxSize = 1024 * 1024 * memClass / 8;
 		mImageLoader = new ImageLoader(mRequestQueue, new LruBitmapCache(
 				maxSize));

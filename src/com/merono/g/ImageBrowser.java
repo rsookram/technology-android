@@ -18,7 +18,7 @@ import android.widget.GridView;
 import com.android.volley.toolbox.NetworkImageView;
 
 public class ImageBrowser extends Activity {
-	String[] thumbs;
+	private String[] thumbs;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -27,14 +27,14 @@ public class ImageBrowser extends Activity {
 
 		SharedPreferences pref = PreferenceManager
 				.getDefaultSharedPreferences(this);
-		this.setTitle("/" + pref.getString("currentBoard", "g") + "/");
+		setTitle(pref.getString("currentBoard", "/g/"));
 
 		thumbs = getIntent().getStringArrayExtra("com.merono.g.thumbs");
 		final String[] fullImgs = getIntent().getStringArrayExtra(
 				"com.merono.g.fullImgs");
 
 		GridView grid = (GridView) findViewById(R.id.gridview);
-		grid.setAdapter(new ImageAdapter(this));
+		grid.setAdapter(new GridImageAdapter(this));
 
 		final Intent intent = new Intent(this, ImageWebView.class);
 		grid.setOnItemClickListener(new OnItemClickListener() {
@@ -47,10 +47,10 @@ public class ImageBrowser extends Activity {
 		});
 	}
 
-	public class ImageAdapter extends BaseAdapter {
+	public class GridImageAdapter extends BaseAdapter {
 		private Activity mActivity;
 
-		public ImageAdapter(Activity a) {
+		public GridImageAdapter(Activity a) {
 			mActivity = a;
 		}
 
