@@ -6,20 +6,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.Window;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.android.volley.Request.Method;
@@ -28,39 +24,59 @@ import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 
-public class ThreadActivity extends Activity {
-	private static final String TAG = "ThreadActivity";
+public class ThreadActivity extends FragmentActivity {
 	public static final String URL = "";
 
+	private ViewPager mPager;
+
+	private ThreadFragment threadFragment;
+	private ImageBrowserFragment imageBrowserFragment;
+
 	private ArrayList<Post> posts = new ArrayList<Post>(1);
-	private PostAdapter adapter;
 	private String mBoardName;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.d(TAG, "Starting ThreadActivity");
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-		setContentView(R.layout.thread_layout);
 
 		mBoardName = Utils.getCurrentBoard(this);
 		setTitle(mBoardName);
 
-		ArrayList<Post> savedPosts = (ArrayList<Post>) getLastNonConfigurationInstance();
-		if (savedPosts == null) {
-			loadPosts(getIntent().getStringExtra(URL) + ".json");
-		} else {
-			posts = new ArrayList<Post>(savedPosts);
-		}
+		setContentView(R.layout.thread_fragment_pager);
 
-		adapter = new PostAdapter(this, R.layout.post_item, posts);
-		((ListView) findViewById(R.id.list)).setAdapter(adapter);
-		setupOnClickListeners();
+		threadFragment = new ThreadFragment();
+		imageBrowserFragment = new ImageBrowserFragment();
+
+		mPager = (ViewPager) findViewById(R.id.thread_pager);
+		mPager.setAdapter(new ThreadFragmentPagerAdapter(
+				getSupportFragmentManager()));
+
+		if (savedInstanceState == null) {
+			loadPosts(getIntent().getStringExtra(URL) + ".json");
+		}
 	}
 
-	@Override
-	public Object onRetainNonConfigurationInstance() {
-		return posts;
+	private class ThreadFragmentPagerAdapter extends FragmentPagerAdapter {
+
+		public ThreadFragmentPagerAdapter(FragmentManager fm) {
+			super(fm);
+		}
+
+		@Override
+		public Fragment getItem(int position) {
+			if (position == 0) {
+				return threadFragment;
+			} else {
+				return imageBrowserFragment;
+			}
+		}
+
+		@Override
+		public int getCount() {
+			return 2;
+		}
+
 	}
 
 	@Override
@@ -77,7 +93,7 @@ public class ThreadActivity extends Activity {
 			refresh();
 			return true;
 		case R.id.image_browser:
-			launchImageBrowser();
+			mPager.setCurrentItem(1, true);
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
@@ -88,66 +104,20 @@ public class ThreadActivity extends Activity {
 		if (posts != null) {
 			posts.clear();
 		}
-		if (adapter != null) {
-			adapter.notifyDataSetChanged();
-		}
 		loadPosts(getIntent().getStringExtra(URL) + ".json");
 	}
 
-	private void launchImageBrowser() {
+	private void setImageBrowserData() {
 		ArrayList<Post> images = Post.getImagePosts(posts);
 
-		String[] thumbUrls = new String[images.size()];
-		String[] fullImgUrls = new String[images.size()];
-		for (int i = 0; i < images.size(); i++) {
-			thumbUrls[i] = images.get(i).getImgURL();
-			fullImgUrls[i] = images.get(i).getFullImgUrl();
+		ArrayList<String> thumbUrls = new ArrayList<String>(images.size());
+		ArrayList<String> fullImgUrls = new ArrayList<String>(images.size());
+		for (Post post : images) {
+			thumbUrls.add(post.getImgURL());
+			fullImgUrls.add(post.getFullImgUrl());
 		}
 
-		Intent i = new Intent(this, ImageBrowserActivity.class);
-		i.putExtra("com.merono.g.thumbs", thumbUrls);
-		i.putExtra("com.merono.g.fullImgs", fullImgUrls);
-		startActivity(i);
-	}
-
-	private void setupOnClickListeners() {
-		final ListView lv = (ListView) findViewById(R.id.list);
-		final Activity a = this;
-
-		lv.setOnItemClickListener(new OnItemClickListener() {
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long viewId) {
-				Post selectedPost = (Post) lv.getItemAtPosition(position);
-				ArrayList<String> quoteIds = selectedPost.getQuoteIds();
-				if (quoteIds == null || quoteIds.size() == 0) {
-					return;
-				}
-
-				ArrayList<Post> quotedPosts = Post.getQuotedPosts(quoteIds,
-						posts);
-				quotedPosts.add(selectedPost);
-
-				ListView quoteList = new ListView(a);
-				quoteList.setAdapter(new PostAdapter(a, R.layout.post_item,
-						quotedPosts));
-
-				new AlertDialog.Builder(a).setView(quoteList).show();
-			}
-		});
-
-		final Intent intent = new Intent(a, ImageWebView.class);
-		lv.setOnItemLongClickListener(new OnItemLongClickListener() {
-			public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
-					int position, long arg3) {
-				Post selected = (Post) lv.getItemAtPosition(position);
-				if (selected.hasFullImgUrl()) {
-					intent.putExtra(com.merono.g.ImageWebView.URL,
-							selected.getFullImgUrl());
-					startActivity(intent);
-				}
-				return true;
-			}
-		});
+		imageBrowserFragment.setData(thumbUrls, fullImgUrls);
 	}
 
 	private void loadPosts(String url) {
@@ -158,8 +128,8 @@ public class ThreadActivity extends Activity {
 				new Listener<JSONObject>() {
 					public void onResponse(JSONObject response) {
 						parseJSON(response);
-						adapter.notifyDataSetChanged();
-
+						threadFragment.setData(posts);
+						setImageBrowserData();
 						setProgressBarIndeterminateVisibility(false);
 					}
 				}, new ErrorListener() {

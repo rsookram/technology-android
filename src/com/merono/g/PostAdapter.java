@@ -24,7 +24,7 @@ public class PostAdapter extends ArrayAdapter<Post> {
 
 	@Override
 	public View getView(int position, final View convertView, ViewGroup parent) {
-		final View view = getWorkingView(convertView);
+		final View view = getWorkingView(convertView, parent);
 		final ViewHolder viewHolder = getViewHolder(view);
 		final Post entry = getItem(position);
 
@@ -45,14 +45,14 @@ public class PostAdapter extends ArrayAdapter<Post> {
 		return view;
 	}
 
-	private View getWorkingView(final View convertView) {
+	private View getWorkingView(final View convertView, ViewGroup parent) {
 		View workingView;
 
 		if (convertView == null) {
 			LayoutInflater inflater = (LayoutInflater) mActivity
 					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-			workingView = inflater.inflate(postItemResourceId, null);
+			workingView = inflater.inflate(postItemResourceId, parent, false);
 		} else {
 			workingView = convertView;
 		}

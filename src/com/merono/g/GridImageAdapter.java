@@ -1,5 +1,7 @@
 package com.merono.g;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -12,19 +14,19 @@ import com.android.volley.toolbox.NetworkImageView;
 
 public class GridImageAdapter extends BaseAdapter {
 	private Activity mActivity;
-	private String[] thumbs;
+	private ArrayList<String> thumbs;
 
-	public GridImageAdapter(Activity a, String[] imgs) {
+	public GridImageAdapter(Activity a, ArrayList<String> imgs) {
 		mActivity = a;
 		thumbs = imgs;
 	}
 
 	public int getCount() {
-		return thumbs.length;
+		return (thumbs == null) ? 0 : thumbs.size();
 	}
 
 	public String getItem(int position) {
-		return thumbs[position];
+		return thumbs.get(position);
 	}
 
 	public long getItemId(int position) {
@@ -37,7 +39,8 @@ public class GridImageAdapter extends BaseAdapter {
 		if (fl == null) {
 			LayoutInflater inflater = (LayoutInflater) mActivity
 					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			fl = (FrameLayout) inflater.inflate(R.layout.grid_image, null);
+			fl = (FrameLayout) inflater.inflate(R.layout.grid_image, parent,
+					false);
 			niv = (NetworkImageView) fl.findViewById(R.id.niv_grid);
 
 			niv.setDefaultImageResId(R.drawable.ic_icon);
