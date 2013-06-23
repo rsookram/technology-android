@@ -19,6 +19,7 @@
         android:layout_alignTop="@id/post_img"
         android:layout_margin="5dp"
         android:layout_toRightOf="@id/post_img"
+        android:textColor="#CCC"
         android:textSize="12sp" />
 
     <TextView
@@ -28,6 +29,7 @@
         android:layout_alignTop="@id/post_name"
         android:layout_marginRight="5dp"
         android:layout_toLeftOf="@+id/post_id"
+        android:textColor="#CCC"
         android:textSize="12sp" />
 
     <TextView
@@ -37,6 +39,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignTop="@id/post_name"
         android:layout_marginRight="5dp"
+        android:textColor="#CCC"
         android:textSize="12sp" />
 
     <TextView
@@ -45,6 +48,7 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@id/post_name"
         android:layout_below="@id/post_id"
+        android:textColor="@android:color/white"
         android:textSize="15sp" />
 
 </RelativeLayout>

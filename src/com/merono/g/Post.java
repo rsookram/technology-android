@@ -33,7 +33,12 @@ public class Post {
 		try {
 			name = Utils.replaceEntities(postJSON.getString("name"));
 		} catch (JSONException e) {
-			name = "";
+			// this happens when the name field is empty
+			try {
+				name = postJSON.getString("trip");
+			} catch (JSONException e1) {
+				name = "";
+			}
 		}
 
 		try {

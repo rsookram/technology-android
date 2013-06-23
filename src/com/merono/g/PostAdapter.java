@@ -15,11 +15,14 @@ import com.android.volley.toolbox.NetworkImageView;
 public class PostAdapter extends ArrayAdapter<Post> {
 	private int postItemResourceId;
 	private Activity mActivity;
+	private LayoutInflater mInflater;
 
-	public PostAdapter(Activity a, int textViewResourceId, ArrayList<Post> posts) {
-		super(a, textViewResourceId, posts);
-		postItemResourceId = textViewResourceId;
-		mActivity = a;
+	public PostAdapter(Activity activity, int resourceId, ArrayList<Post> posts) {
+		super(activity, resourceId, posts);
+		postItemResourceId = resourceId;
+		mActivity = activity;
+		mInflater = (LayoutInflater) activity
+				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 	}
 
 	@Override
@@ -49,10 +52,7 @@ public class PostAdapter extends ArrayAdapter<Post> {
 		View workingView;
 
 		if (convertView == null) {
-			LayoutInflater inflater = (LayoutInflater) mActivity
-					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-			workingView = inflater.inflate(postItemResourceId, parent, false);
+			workingView = mInflater.inflate(postItemResourceId, parent, false);
 		} else {
 			workingView = convertView;
 		}
