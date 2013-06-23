@@ -91,11 +91,11 @@ public class Post {
 	}
 
 	public boolean hasImgUrl() {
-		return !imgUrl.equals("");
+		return !imgUrl.isEmpty();
 	}
 
 	public boolean hasFullImgUrl() {
-		return !fullImgUrl.equals("");
+		return !fullImgUrl.isEmpty();
 	}
 
 	public static ArrayList<Post> getQuotedPosts(ArrayList<String> ids,

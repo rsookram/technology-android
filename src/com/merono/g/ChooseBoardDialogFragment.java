@@ -56,7 +56,7 @@ public class ChooseBoardDialogFragment extends DialogFragment {
 	public void onStart() {
 		super.onStart();
 
-		// make the keyboard appear when dialog appears (only in portrait)
+		// make keyboard appear when dialog appears (only works in portrait)
 		mEditText.setOnFocusChangeListener(new OnFocusChangeListener() {
 			public void onFocusChange(View v, boolean hasFocus) {
 				if (hasFocus) {

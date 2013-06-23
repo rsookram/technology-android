@@ -9,9 +9,7 @@ import org.json.JSONObject;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -34,9 +32,9 @@ public class ThreadActivity extends Activity {
 	private static final String TAG = "ThreadActivity";
 	public static final String URL = "";
 
-	ArrayList<Post> posts = new ArrayList<Post>(1);
-	PostAdapter adapter;
-	String mBoardName;
+	private ArrayList<Post> posts = new ArrayList<Post>(1);
+	private PostAdapter adapter;
+	private String mBoardName;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -45,9 +43,7 @@ public class ThreadActivity extends Activity {
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.thread_layout);
 
-		SharedPreferences pref = PreferenceManager
-				.getDefaultSharedPreferences(this);
-		mBoardName = pref.getString("currentBoard", "/g/");
+		mBoardName = Utils.getCurrentBoard(this);
 		setTitle(mBoardName);
 
 		ArrayList<Post> savedPosts = (ArrayList<Post>) getLastNonConfigurationInstance();
@@ -59,7 +55,7 @@ public class ThreadActivity extends Activity {
 
 		adapter = new PostAdapter(this, R.layout.post_item, posts);
 		((ListView) findViewById(R.id.list)).setAdapter(adapter);
-		setupOnClickListener();
+		setupOnClickListeners();
 	}
 
 	@Override
@@ -108,13 +104,13 @@ public class ThreadActivity extends Activity {
 			fullImgUrls[i] = images.get(i).getFullImgUrl();
 		}
 
-		Intent i = new Intent(this, ImageBrowser.class);
+		Intent i = new Intent(this, ImageBrowserActivity.class);
 		i.putExtra("com.merono.g.thumbs", thumbUrls);
 		i.putExtra("com.merono.g.fullImgs", fullImgUrls);
 		startActivity(i);
 	}
 
-	private void setupOnClickListener() {
+	private void setupOnClickListeners() {
 		final ListView lv = (ListView) findViewById(R.id.list);
 		final Activity a = this;
 

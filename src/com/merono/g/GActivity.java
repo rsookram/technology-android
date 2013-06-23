@@ -30,16 +30,15 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 
 public class GActivity extends Activity {
-	private static final String TAG = "GActivity";
 	private static final String BASE_API_URL = "https://api.4chan.org";
 	private static final int NUM_THREADS = 15; // number of threads per page
 
-	static int mPageNum = 0;
-	static String mBoardName;
-	static final String[] threadLinks = new String[NUM_THREADS];
+	private static int mPageNum = 0;
+	private static String mBoardName;
+	private static final String[] threadLinks = new String[NUM_THREADS];
 
-	ArrayList<Post> post = new ArrayList<Post>(NUM_THREADS);
-	PostAdapter adapter;
+	private ArrayList<Post> post = new ArrayList<Post>(NUM_THREADS);
+	private PostAdapter adapter;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -64,7 +63,7 @@ public class GActivity extends Activity {
 
 		adapter = new PostAdapter(this, R.layout.post_item, post);
 		((ListView) findViewById(R.id.list)).setAdapter(adapter);
-		setupOnItemClickListener();
+		setupOnItemClickListeners();
 
 		setTitle(mBoardName + " - page " + mPageNum);
 	}
@@ -134,14 +133,13 @@ public class GActivity extends Activity {
 		refresh(mPageNum);
 	}
 
-	private void setupOnItemClickListener() {
+	private void setupOnItemClickListeners() {
 		ListView lv = (ListView) findViewById(R.id.list);
-		final Activity a = this;
 
+		final Intent i = new Intent(this, ThreadActivity.class);
 		lv.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> arg0, View arg1,
 					int position, long arg3) {
-				final Intent i = new Intent(a, ThreadActivity.class);
 				i.putExtra(com.merono.g.ThreadActivity.URL,
 						threadLinks[position]);
 				startActivity(i);
@@ -152,9 +150,8 @@ public class GActivity extends Activity {
 		lv.setOnItemLongClickListener(new OnItemLongClickListener() {
 			public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
 					int position, long arg3) {
-				Post selected = post.get(position);
-				intent.putExtra(com.merono.g.ImageWebView.URL,
-						selected.getFullImgUrl());
+				String imgToLoad = post.get(position).getFullImgUrl();
+				intent.putExtra(com.merono.g.ImageWebView.URL, imgToLoad);
 				startActivity(intent);
 				return true;
 			}

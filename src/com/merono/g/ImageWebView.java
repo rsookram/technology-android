@@ -23,12 +23,12 @@ public class ImageWebView extends Activity {
 		getWindow().requestFeature(Window.FEATURE_PROGRESS);
 		super.onCreate(savedInstanceState);
 
-		WebView wv = new WebView(this);
-		setContentView(wv);
-
 		SharedPreferences pref = PreferenceManager
 				.getDefaultSharedPreferences(this);
 		setTitle(pref.getString("currentBoard", "/g/"));
+
+		WebView wv = new WebView(this);
+		setContentView(wv);
 
 		WebSettings ws = wv.getSettings();
 		ws.setLoadWithOverviewMode(true);
