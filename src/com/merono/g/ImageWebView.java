@@ -12,8 +12,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 public class ImageWebView extends Activity {
-	protected static String URL;
-
 	private static final String PREF_FILE = "WebViewSettings";
 	private static final String DOUBLE_TAP_TOAST_COUNT = "double_tap_toast_count";
 
@@ -53,7 +51,7 @@ public class ImageWebView extends Activity {
 			}
 		});
 
-		wv.loadUrl(getIntent().getStringExtra(URL));
+		wv.loadUrl(getIntent().getStringExtra("URL"));
 	}
 
 	private void disableDoubleTapToast() {

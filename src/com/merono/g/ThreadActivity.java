@@ -6,6 +6,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.ActionBar;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -13,7 +14,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.Window;
 import android.widget.Toast;
@@ -25,9 +25,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 
 public class ThreadActivity extends FragmentActivity {
-	public static final String URL = "";
-
-	private ViewPager mPager;
+	private static final int FRAGMENT_COUNT = 2;
 
 	private ThreadFragment threadFragment;
 	private ImageBrowserFragment imageBrowserFragment;
@@ -40,6 +38,8 @@ public class ThreadActivity extends FragmentActivity {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
+		ActionBar actionBar = getActionBar();
+		actionBar.setDisplayShowHomeEnabled(false);
 		mBoardName = Utils.getCurrentBoard(this);
 		setTitle(mBoardName);
 
@@ -48,63 +48,50 @@ public class ThreadActivity extends FragmentActivity {
 		threadFragment = new ThreadFragment();
 		imageBrowserFragment = new ImageBrowserFragment();
 
-		mPager = (ViewPager) findViewById(R.id.thread_pager);
-		mPager.setAdapter(new ThreadFragmentPagerAdapter(
-				getSupportFragmentManager()));
+		FragmentManager fm = getSupportFragmentManager();
+		ViewPager mPager = (ViewPager) findViewById(R.id.thread_pager);
+		mPager.setAdapter(new ThreadFragmentPagerAdapter(fm));
 
 		if (savedInstanceState == null) {
-			loadPosts(getIntent().getStringExtra(URL) + ".json");
+			loadPosts(getIntent().getStringExtra("URL") + ".json");
 		}
 	}
 
 	private class ThreadFragmentPagerAdapter extends FragmentPagerAdapter {
-
 		public ThreadFragmentPagerAdapter(FragmentManager fm) {
 			super(fm);
 		}
 
 		@Override
 		public Fragment getItem(int position) {
-			if (position == 0) {
-				return threadFragment;
-			} else {
-				return imageBrowserFragment;
-			}
+			return (position == 0) ? threadFragment : imageBrowserFragment;
+		}
+
+		@Override
+		public CharSequence getPageTitle(int position) {
+			return (position == 0) ? "Thread" : "Image Viewer";
 		}
 
 		@Override
 		public int getCount() {
-			return 2;
+			return FRAGMENT_COUNT;
 		}
-
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.thread_menu, menu);
+		getMenuInflater().inflate(R.menu.thread_menu, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.refresh:
-			refresh();
+		if (item.getItemId() == R.id.refresh) {
+			loadPosts(getIntent().getStringExtra("URL") + ".json");
 			return true;
-		case R.id.image_browser:
-			mPager.setCurrentItem(1, true);
-			return true;
-		default:
+		} else {
 			return super.onOptionsItemSelected(item);
 		}
-	}
-
-	private void refresh() {
-		if (posts != null) {
-			posts.clear();
-		}
-		loadPosts(getIntent().getStringExtra(URL) + ".json");
 	}
 
 	private void setImageBrowserData() {
@@ -127,6 +114,7 @@ public class ThreadActivity extends FragmentActivity {
 		appState.mRequestQueue.add(new JsonObjectRequest(Method.GET, url, null,
 				new Listener<JSONObject>() {
 					public void onResponse(JSONObject response) {
+						posts.clear();
 						parseJSON(response);
 						threadFragment.setData(posts);
 						setImageBrowserData();

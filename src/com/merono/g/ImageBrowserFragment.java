@@ -55,7 +55,7 @@ public class ImageBrowserFragment extends Fragment {
 			public void onItemClick(AdapterView<?> parent, View v,
 					int position, long id) {
 				String selected = fullImgUrls.get(position);
-				intent.putExtra(com.merono.g.ImageWebView.URL, selected);
+				intent.putExtra("URL", selected);
 				startActivity(intent);
 			}
 		});

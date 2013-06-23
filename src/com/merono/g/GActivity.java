@@ -65,6 +65,7 @@ public class GActivity extends Activity {
 		((ListView) findViewById(R.id.list)).setAdapter(adapter);
 		setupOnItemClickListeners();
 
+		getActionBar().setDisplayShowHomeEnabled(false);
 		setTitle(mBoardName + " - page " + mPageNum);
 	}
 
@@ -75,8 +76,7 @@ public class GActivity extends Activity {
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.main_menu, menu);
+		getMenuInflater().inflate(R.menu.main_menu, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
 
@@ -140,8 +140,7 @@ public class GActivity extends Activity {
 		lv.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> arg0, View arg1,
 					int position, long arg3) {
-				i.putExtra(com.merono.g.ThreadActivity.URL,
-						threadLinks[position]);
+				i.putExtra("URL", threadLinks[position]);
 				startActivity(i);
 			}
 		});
@@ -151,7 +150,7 @@ public class GActivity extends Activity {
 			public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
 					int position, long arg3) {
 				String imgToLoad = post.get(position).getFullImgUrl();
-				intent.putExtra(com.merono.g.ImageWebView.URL, imgToLoad);
+				intent.putExtra("URL", imgToLoad);
 				startActivity(intent);
 				return true;
 			}

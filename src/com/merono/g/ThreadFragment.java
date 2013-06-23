@@ -79,8 +79,7 @@ public class ThreadFragment extends Fragment {
 					int position, long arg3) {
 				Post selected = (Post) lv.getItemAtPosition(position);
 				if (selected.hasFullImgUrl()) {
-					intent.putExtra(com.merono.g.ImageWebView.URL,
-							selected.getFullImgUrl());
+					intent.putExtra("URL", selected.getFullImgUrl());
 					startActivity(intent);
 				}
 				return true;
