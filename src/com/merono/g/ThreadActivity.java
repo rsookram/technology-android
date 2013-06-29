@@ -52,6 +52,9 @@ public class ThreadActivity extends FragmentActivity {
 		ViewPager mPager = (ViewPager) findViewById(R.id.thread_pager);
 		mPager.setAdapter(new ThreadFragmentPagerAdapter(fm));
 
+		mPager.setPageMargin(getResources().getDisplayMetrics().widthPixels / 10);
+		mPager.setPageMarginDrawable(android.R.color.black);
+
 		// Only load posts when first created
 		if (savedInstanceState == null) {
 			loadPosts(getIntent().getStringExtra("URL") + ".json", false);
