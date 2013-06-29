@@ -6,7 +6,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.ActionBar;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -31,17 +30,14 @@ public class ThreadActivity extends FragmentActivity {
 	private ImageBrowserFragment imageBrowserFragment;
 
 	private ArrayList<Post> posts = new ArrayList<Post>(1);
-	private String mBoardName;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
-		ActionBar actionBar = getActionBar();
-		actionBar.setDisplayShowHomeEnabled(false);
-		mBoardName = Utils.getCurrentBoard(this);
-		setTitle(mBoardName);
+		getActionBar().setDisplayShowHomeEnabled(false);
+		setTitle(Utils.getCurrentBoard(this));
 
 		setContentView(R.layout.thread_fragment_pager);
 
@@ -55,7 +51,7 @@ public class ThreadActivity extends FragmentActivity {
 		mPager.setPageMargin(getResources().getDisplayMetrics().widthPixels / 10);
 		mPager.setPageMarginDrawable(android.R.color.black);
 
-		// Only load posts when first created
+		// Only load when first created
 		if (savedInstanceState == null) {
 			loadPosts(getIntent().getStringExtra("URL") + ".json", false);
 		}
@@ -142,9 +138,10 @@ public class ThreadActivity extends FragmentActivity {
 
 	private void parseJSON(JSONObject json) {
 		try {
+			String boardName = Utils.getCurrentBoard(this);
 			JSONArray allPosts = json.getJSONArray("posts");
 			for (int i = 0; i < allPosts.length(); i++) {
-				posts.add(new Post(allPosts.getJSONObject(i), mBoardName));
+				posts.add(new Post(allPosts.getJSONObject(i), boardName));
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
