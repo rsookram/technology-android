@@ -13,7 +13,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -21,7 +20,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.android.volley.Request.Method;
 import com.android.volley.Response.ErrorListener;
@@ -140,8 +138,10 @@ public class GActivity extends Activity {
 		lv.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> arg0, View arg1,
 					int position, long arg3) {
-				i.putExtra("URL", threadLinks[position]);
-				startActivity(i);
+				if (threadLinks[position] != null) {
+					i.putExtra("URL", threadLinks[position]);
+					startActivity(i);
+				}
 			}
 		});
 
@@ -149,10 +149,13 @@ public class GActivity extends Activity {
 		lv.setOnItemLongClickListener(new OnItemLongClickListener() {
 			public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
 					int position, long arg3) {
-				String imgToLoad = post.get(position).getFullImgUrl();
-				intent.putExtra("URL", imgToLoad);
-				startActivity(intent);
-				return true;
+				if (post.get(position).hasFullImgUrl()) {
+					String imgToLoad = post.get(position).getFullImgUrl();
+					intent.putExtra("URL", imgToLoad);
+					startActivity(intent);
+					return true;
+				}
+				return false;
 			}
 		});
 	}
@@ -171,8 +174,9 @@ public class GActivity extends Activity {
 					}
 				}, new ErrorListener() {
 					public void onErrorResponse(VolleyError error) {
-						Toast.makeText(GActivity.this, error.getMessage(),
-								Toast.LENGTH_LONG).show();
+						post.add(new Post(error.getMessage()));
+						threadLinks[0] = null;
+						adapter.notifyDataSetChanged();
 						setProgressBarIndeterminateVisibility(false);
 					}
 				}));

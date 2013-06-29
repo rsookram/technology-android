@@ -1,6 +1,9 @@
 package com.merono.g;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -67,6 +70,19 @@ public class Post {
 		}
 	}
 
+	public Post(String error) {
+		String formatStr = "MM/dd/yy  HH:mm";
+		SimpleDateFormat dateFormat = new SimpleDateFormat(formatStr, Locale.US);
+
+		body = error;
+		name = "Anonymous";
+		time = dateFormat.format(new Date());
+		id = "0";
+		imgUrl = "";
+		fullImgUrl = "";
+		quoteIds = null;
+	}
+
 	public String getText() {
 		return body;
 	}
@@ -128,7 +144,6 @@ public class Post {
 		return imagePosts;
 	}
 
-	// extract IDs of quotes
 	private static ArrayList<String> extractQuoteIds(String body) {
 		ArrayList<String> quotes = new ArrayList<String>();
 

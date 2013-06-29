@@ -52,8 +52,9 @@ public class ThreadActivity extends FragmentActivity {
 		ViewPager mPager = (ViewPager) findViewById(R.id.thread_pager);
 		mPager.setAdapter(new ThreadFragmentPagerAdapter(fm));
 
+		// Only load posts when first created
 		if (savedInstanceState == null) {
-			loadPosts(getIntent().getStringExtra("URL") + ".json");
+			loadPosts(getIntent().getStringExtra("URL") + ".json", false);
 		}
 	}
 
@@ -87,7 +88,7 @@ public class ThreadActivity extends FragmentActivity {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.refresh) {
-			loadPosts(getIntent().getStringExtra("URL") + ".json");
+			loadPosts(getIntent().getStringExtra("URL") + ".json", true);
 			return true;
 		} else {
 			return super.onOptionsItemSelected(item);
@@ -107,7 +108,7 @@ public class ThreadActivity extends FragmentActivity {
 		imageBrowserFragment.setData(thumbUrls, fullImgUrls);
 	}
 
-	private void loadPosts(String url) {
+	private void loadPosts(String url, final boolean isRefresh) {
 		setProgressBarIndeterminateVisibility(true);
 
 		GApplication appState = (GApplication) getApplication();
@@ -122,8 +123,14 @@ public class ThreadActivity extends FragmentActivity {
 					}
 				}, new ErrorListener() {
 					public void onErrorResponse(VolleyError error) {
-						Toast.makeText(ThreadActivity.this, error.getMessage(),
-								Toast.LENGTH_LONG).show();
+						if (isRefresh) {
+							Toast.makeText(ThreadActivity.this,
+									error.getMessage(), Toast.LENGTH_LONG)
+									.show();
+						} else {
+							posts.add(new Post(error.getMessage()));
+							threadFragment.setData(posts);
+						}
 						setProgressBarIndeterminateVisibility(false);
 					}
 				}));

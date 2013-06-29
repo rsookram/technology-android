@@ -31,9 +31,11 @@ public class PostAdapter extends ArrayAdapter<Post> {
 		final ViewHolder viewHolder = getViewHolder(view);
 		final Post entry = getItem(position);
 
+		String idLabel = mActivity.getString(R.string.id_label, entry.getId());
+
 		viewHolder.nameView.setText(entry.getName());
 		viewHolder.timeView.setText(entry.getTime());
-		viewHolder.idView.setText("No." + entry.getId());
+		viewHolder.idView.setText(idLabel);
 		viewHolder.bodyView.setText(entry.getText());
 
 		if (!entry.hasImgUrl()) {

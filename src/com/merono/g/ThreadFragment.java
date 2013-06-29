@@ -81,8 +81,9 @@ public class ThreadFragment extends Fragment {
 				if (selected.hasFullImgUrl()) {
 					intent.putExtra("URL", selected.getFullImgUrl());
 					startActivity(intent);
+					return true;
 				}
-				return true;
+				return false;
 			}
 		});
 	}

@@ -3,6 +3,7 @@
 
     <string name="app_name">technolo/g/y</string>
     <string name="refresh">Refresh</string>
+    <string name="id_label">No. %s</string>
     <string name="content_description">Posted image</string>
 
 </resources>
