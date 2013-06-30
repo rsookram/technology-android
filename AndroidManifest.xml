@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.merono.g"
-    android:versionCode="53"
-    android:versionName="5.22" >
+    android:versionCode="54"
+    android:versionName="5.30" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -12,7 +12,7 @@
 
     <application
         android:name="GApplication"
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@drawable/ic_icon"
         android:label="@string/app_name" >
         <activity android:name=".GActivity" >
@@ -22,16 +22,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ThreadActivity" >
-        </activity>
-        <activity android:name=".ImageWebView" >
-        </activity>
+        <activity android:name=".ThreadActivity" />
+        <activity android:name=".ImageWebView" />
         <activity
             android:name=".PrefsActivity"
-            android:label="Settings" >
-        </activity>
-        <activity android:name=".ImageBrowserActivity" >
-        </activity>
+            android:label="Settings" />
     </application>
 
 </manifest>

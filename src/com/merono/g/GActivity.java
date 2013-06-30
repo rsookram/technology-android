@@ -25,17 +25,16 @@ import com.android.volley.Request.Method;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 
 public class GActivity extends Activity {
-	private static final String BASE_API_URL = "https://api.4chan.org";
-	private static final int NUM_THREADS = 15; // number of threads per page
+	private static final String API_URL = "https://api.4chan.org%scatalog.json";
 
-	private static int mPageNum = 0;
 	private static String mBoardName;
-	private static final String[] threadLinks = new String[NUM_THREADS];
+	private static final ArrayList<String> threadLinks = new ArrayList<String>();
 
-	private ArrayList<Post> post = new ArrayList<Post>(NUM_THREADS);
+	private ArrayList<Post> posts = new ArrayList<Post>();
 	private PostAdapter adapter;
 
 	@Override
@@ -48,28 +47,28 @@ public class GActivity extends Activity {
 		SharedPreferences pref = PreferenceManager
 				.getDefaultSharedPreferences(this);
 
-		final ArrayList<Post> postsFromBefore = (ArrayList<Post>) getLastNonConfigurationInstance();
-		if (postsFromBefore == null) {
+		ArrayList<Post> previousPosts = (ArrayList<Post>) getLastNonConfigurationInstance();
+		if (previousPosts == null) {
 			mBoardName = pref.getString("board", "/g/");
 			pref.edit().putString("currentBoard", mBoardName).commit();
 
-			loadThreads(BASE_API_URL + mBoardName + mPageNum + ".json");
+			loadThreads(String.format(API_URL, mBoardName));
 		} else {
 			mBoardName = pref.getString("currentBoard", "/g/");
-			post = new ArrayList<Post>(postsFromBefore);
+			posts = new ArrayList<Post>(previousPosts);
 		}
 
-		adapter = new PostAdapter(this, R.layout.post_item, post);
+		adapter = new PostAdapter(this, R.layout.post_item, posts);
 		((ListView) findViewById(R.id.list)).setAdapter(adapter);
 		setupOnItemClickListeners();
 
 		getActionBar().setDisplayShowHomeEnabled(false);
-		setTitle(mBoardName + " - page " + mPageNum);
+		setTitle(mBoardName);
 	}
 
 	@Override
 	public Object onRetainNonConfigurationInstance() {
-		return post;
+		return posts;
 	}
 
 	@Override
@@ -82,10 +81,7 @@ public class GActivity extends Activity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.refresh:
-			refresh(mPageNum);
-			return true;
-		case R.id.choose_page:
-			choosePage();
+			refresh();
 			return true;
 		case R.id.choose_board:
 			chooseBoard();
@@ -98,23 +94,16 @@ public class GActivity extends Activity {
 		}
 	}
 
-	public void refresh(int pageToLoad) {
-		mPageNum = pageToLoad;
-
-		post.clear();
+	public void refresh() {
+		posts.clear();
+        threadLinks.clear();
 		if (adapter != null) {
 			adapter.notifyDataSetChanged();
 		}
 
-		setTitle(mBoardName + " - page " + mPageNum);
+		setTitle(mBoardName);
 
-		loadThreads(BASE_API_URL + mBoardName + mPageNum + ".json");
-	}
-
-	private void choosePage() {
-		DialogFragment pageFragment = PagePickerDialogFragment
-				.newInstance(mPageNum);
-		pageFragment.show(getFragmentManager(), "choose_page_dialog");
+		loadThreads(String.format(API_URL, mBoardName));
 	}
 
 	private void chooseBoard() {
@@ -127,8 +116,7 @@ public class GActivity extends Activity {
 		SharedPreferences pref = PreferenceManager
 				.getDefaultSharedPreferences(this);
 		pref.edit().putString("currentBoard", mBoardName).commit();
-		mPageNum = 0;
-		refresh(mPageNum);
+		refresh();
 	}
 
 	private void setupOnItemClickListeners() {
@@ -138,8 +126,8 @@ public class GActivity extends Activity {
 		lv.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> arg0, View arg1,
 					int position, long arg3) {
-				if (threadLinks[position] != null) {
-					i.putExtra("URL", threadLinks[position]);
+				if (threadLinks.get(position) != null) {
+					i.putExtra("URL", threadLinks.get(position));
 					startActivity(i);
 				}
 			}
@@ -149,8 +137,8 @@ public class GActivity extends Activity {
 		lv.setOnItemLongClickListener(new OnItemLongClickListener() {
 			public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
 					int position, long arg3) {
-				if (post.get(position).hasFullImgUrl()) {
-					String imgToLoad = post.get(position).getFullImgUrl();
+				if (posts.get(position).hasFullImgUrl()) {
+					String imgToLoad = posts.get(position).getFullImgUrl();
 					intent.putExtra("URL", imgToLoad);
 					startActivity(intent);
 					return true;
@@ -164,9 +152,9 @@ public class GActivity extends Activity {
 		setProgressBarIndeterminateVisibility(true);
 
 		GApplication appState = (GApplication) getApplication();
-		appState.mRequestQueue.add(new JsonObjectRequest(Method.GET, url, null,
-				new Listener<JSONObject>() {
-					public void onResponse(JSONObject response) {
+		appState.mRequestQueue.add(new JsonArrayRequest(url,
+				new Listener<JSONArray>() {
+					public void onResponse(JSONArray response) {
 						parseJSON(response);
 						adapter.notifyDataSetChanged();
 
@@ -174,8 +162,8 @@ public class GActivity extends Activity {
 					}
 				}, new ErrorListener() {
 					public void onErrorResponse(VolleyError error) {
-						post.add(new Post(error.getMessage()));
-						threadLinks[0] = null;
+						posts.add(new Post(error.getMessage()));
+						threadLinks.add(null);
 						adapter.notifyDataSetChanged();
 						setProgressBarIndeterminateVisibility(false);
 					}
@@ -183,16 +171,18 @@ public class GActivity extends Activity {
 		appState.mRequestQueue.start();
 	}
 
-	private void parseJSON(JSONObject json) {
+	private void parseJSON(JSONArray json) {
 		try {
-			JSONArray threads = json.getJSONArray("threads");
-			for (int i = 0; i < NUM_THREADS; i++) {
-				JSONArray posts = threads.getJSONObject(i)
-						.getJSONArray("posts");
-				post.add(new Post(posts.getJSONObject(0), mBoardName));
-				threadLinks[i] = "https://boards.4chan.org" + mBoardName
-						+ "res/" + posts.getJSONObject(0).getInt("no");
-			}
+            for (int i = 0; i < json.length(); i++) {
+                JSONObject obj = json.getJSONObject(i);
+                JSONArray threads = obj.getJSONArray("threads");
+                for (int j = 0; j < threads.length(); j++) {
+                    JSONObject post = threads.getJSONObject(j);
+                    posts.add(new Post(post, mBoardName));
+                    threadLinks.add("https://boards.4chan.org" + mBoardName +
+                            "res/" + post.getInt("no"));
+                }
+            }
 		} catch (JSONException e) {
 			e.printStackTrace();
 		}
