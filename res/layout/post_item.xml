@@ -13,34 +13,25 @@
         android:padding="3dp" />
 
     <TextView
+        style="@style/PostItemExtraInfo"
         android:id="@+id/post_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_alignTop="@id/post_img"
         android:layout_margin="5dp"
-        android:layout_toRightOf="@id/post_img"
-        android:textColor="#CCC"
-        android:textSize="12sp" />
+        android:layout_toRightOf="@id/post_img" />
 
     <TextView
+        style="@style/PostItemExtraInfo"
         android:id="@+id/post_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_alignTop="@id/post_name"
         android:layout_marginRight="5dp"
-        android:layout_toLeftOf="@+id/post_id"
-        android:textColor="#CCC"
-        android:textSize="12sp" />
+        android:layout_toLeftOf="@+id/post_id" />
 
     <TextView
+        style="@style/PostItemExtraInfo"
         android:id="@+id/post_id"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_alignTop="@id/post_name"
-        android:layout_marginRight="5dp"
-        android:textColor="#CCC"
-        android:textSize="12sp" />
+        android:layout_marginRight="5dp" />
 
     <TextView
         android:id="@+id/post_body"
