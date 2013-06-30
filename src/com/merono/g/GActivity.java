@@ -21,158 +21,156 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 
-import com.android.volley.Request.Method;
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.JsonObjectRequest;
 
 public class GActivity extends Activity {
-	private static final String API_URL = "https://api.4chan.org%scatalog.json";
+    private static final String API_URL = "https://api.4chan.org%scatalog.json";
 
-	private static String mBoardName;
-	private static final ArrayList<String> threadLinks = new ArrayList<String>();
+    private static String mBoardName;
+    private static final ArrayList<String> threadLinks = new ArrayList<String>();
 
-	private ArrayList<Post> posts = new ArrayList<Post>();
-	private PostAdapter adapter;
+    private ArrayList<Post> posts = new ArrayList<Post>();
+    private PostAdapter adapter;
 
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-		setContentView(R.layout.thread_layout);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        setContentView(R.layout.thread_layout);
 
-		PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
-		SharedPreferences pref = PreferenceManager
-				.getDefaultSharedPreferences(this);
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+        SharedPreferences pref = PreferenceManager
+                .getDefaultSharedPreferences(this);
 
-		ArrayList<Post> previousPosts = (ArrayList<Post>) getLastNonConfigurationInstance();
-		if (previousPosts == null) {
-			mBoardName = pref.getString("board", "/g/");
-			pref.edit().putString("currentBoard", mBoardName).commit();
+        ArrayList<Post> previousPosts = (ArrayList<Post>) getLastNonConfigurationInstance();
+        if (previousPosts == null) {
+            mBoardName = pref.getString("board", "/g/");
+            pref.edit().putString("currentBoard", mBoardName).commit();
 
-			loadThreads(String.format(API_URL, mBoardName));
-		} else {
-			mBoardName = pref.getString("currentBoard", "/g/");
-			posts = new ArrayList<Post>(previousPosts);
-		}
+            loadThreads(String.format(API_URL, mBoardName));
+        } else {
+            mBoardName = pref.getString("currentBoard", "/g/");
+            posts = new ArrayList<Post>(previousPosts);
+        }
 
-		adapter = new PostAdapter(this, R.layout.post_item, posts);
-		((ListView) findViewById(R.id.list)).setAdapter(adapter);
-		setupOnItemClickListeners();
+        adapter = new PostAdapter(this, R.layout.post_item, posts);
+        ((ListView) findViewById(R.id.list)).setAdapter(adapter);
+        setupOnItemClickListeners();
 
-		getActionBar().setDisplayShowHomeEnabled(false);
-		setTitle(mBoardName);
-	}
+        getActionBar().setDisplayShowHomeEnabled(false);
+        setTitle(mBoardName);
+    }
 
-	@Override
-	public Object onRetainNonConfigurationInstance() {
-		return posts;
-	}
+    @Override
+    public Object onRetainNonConfigurationInstance() {
+        return posts;
+    }
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.main_menu, menu);
-		return super.onCreateOptionsMenu(menu);
-	}
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.refresh:
-			refresh();
-			return true;
-		case R.id.choose_board:
-			chooseBoard();
-			return true;
-		case R.id.settings:
-			startActivity(new Intent(this, PrefsActivity.class));
-			return true;
-		default:
-			return super.onOptionsItemSelected(item);
-		}
-	}
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+        case R.id.refresh:
+            refresh();
+            return true;
+        case R.id.choose_board:
+            chooseBoard();
+            return true;
+        case R.id.settings:
+            startActivity(new Intent(this, PrefsActivity.class));
+            return true;
+        default:
+            return super.onOptionsItemSelected(item);
+        }
+    }
 
-	public void refresh() {
-		posts.clear();
+    public void refresh() {
+        posts.clear();
         threadLinks.clear();
-		if (adapter != null) {
-			adapter.notifyDataSetChanged();
-		}
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
 
-		setTitle(mBoardName);
+        setTitle(mBoardName);
 
-		loadThreads(String.format(API_URL, mBoardName));
-	}
+        loadThreads(String.format(API_URL, mBoardName));
+    }
 
-	private void chooseBoard() {
-		DialogFragment boardFragment = new ChooseBoardDialogFragment();
-		boardFragment.show(getFragmentManager(), "choose_board_dialog");
-	}
+    private void chooseBoard() {
+        DialogFragment boardFragment = new ChooseBoardDialogFragment();
+        boardFragment.show(getFragmentManager(), "choose_board_dialog");
+    }
 
-	public void switchBoard(String board) {
-		mBoardName = Utils.cleanBoardName(board);
-		SharedPreferences pref = PreferenceManager
-				.getDefaultSharedPreferences(this);
-		pref.edit().putString("currentBoard", mBoardName).commit();
-		refresh();
-	}
+    public void switchBoard(String board) {
+        mBoardName = Utils.cleanBoardName(board);
+        SharedPreferences pref = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        pref.edit().putString("currentBoard", mBoardName).commit();
+        refresh();
+    }
 
-	private void setupOnItemClickListeners() {
-		ListView lv = (ListView) findViewById(R.id.list);
+    private void setupOnItemClickListeners() {
+        ListView lv = (ListView) findViewById(R.id.list);
 
-		final Intent i = new Intent(this, ThreadActivity.class);
-		lv.setOnItemClickListener(new OnItemClickListener() {
-			public void onItemClick(AdapterView<?> arg0, View arg1,
-					int position, long arg3) {
-				if (threadLinks.get(position) != null) {
-					i.putExtra("URL", threadLinks.get(position));
-					startActivity(i);
-				}
-			}
-		});
+        final Intent i = new Intent(this, ThreadActivity.class);
+        lv.setOnItemClickListener(new OnItemClickListener() {
+            public void onItemClick(AdapterView<?> arg0, View arg1,
+                    int position, long arg3) {
+                if (threadLinks.get(position) != null) {
+                    i.putExtra("URL", threadLinks.get(position));
+                    startActivity(i);
+                }
+            }
+        });
 
-		final Intent intent = new Intent(this, ImageWebView.class);
-		lv.setOnItemLongClickListener(new OnItemLongClickListener() {
-			public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
-					int position, long arg3) {
-				if (posts.get(position).hasFullImgUrl()) {
-					String imgToLoad = posts.get(position).getFullImgUrl();
-					intent.putExtra("URL", imgToLoad);
-					startActivity(intent);
-					return true;
-				}
-				return false;
-			}
-		});
-	}
+        final Intent intent = new Intent(this, ImageWebView.class);
+        lv.setOnItemLongClickListener(new OnItemLongClickListener() {
+            public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
+                    int position, long arg3) {
+                if (posts.get(position).hasFullImgUrl()) {
+                    String imgToLoad = posts.get(position).getFullImgUrl();
+                    intent.putExtra("URL", imgToLoad);
+                    startActivity(intent);
+                    return true;
+                }
+                return false;
+            }
+        });
+    }
 
-	private void loadThreads(String url) {
-		setProgressBarIndeterminateVisibility(true);
+    private void loadThreads(String url) {
+        setProgressBarIndeterminateVisibility(true);
 
-		GApplication appState = (GApplication) getApplication();
-		appState.mRequestQueue.add(new JsonArrayRequest(url,
-				new Listener<JSONArray>() {
-					public void onResponse(JSONArray response) {
-						parseJSON(response);
-						adapter.notifyDataSetChanged();
+        GApplication appState = (GApplication) getApplication();
+        appState.mRequestQueue.add(new JsonArrayRequest(url,
+                new Listener<JSONArray>() {
+                    public void onResponse(JSONArray response) {
+                        parseJSON(response);
+                        adapter.notifyDataSetChanged();
 
-						setProgressBarIndeterminateVisibility(false);
-					}
-				}, new ErrorListener() {
-					public void onErrorResponse(VolleyError error) {
-						posts.add(new Post(error.getMessage()));
-						threadLinks.add(null);
-						adapter.notifyDataSetChanged();
-						setProgressBarIndeterminateVisibility(false);
-					}
-				}));
-		appState.mRequestQueue.start();
-	}
+                        setProgressBarIndeterminateVisibility(false);
+                    }
+                }, new ErrorListener() {
+                    public void onErrorResponse(VolleyError error) {
+                        posts.add(new Post(error.getMessage()));
+                        threadLinks.add(null);
+                        adapter.notifyDataSetChanged();
+                        setProgressBarIndeterminateVisibility(false);
+                    }
+                }));
+        appState.mRequestQueue.start();
+    }
 
-	private void parseJSON(JSONArray json) {
-		try {
+    private void parseJSON(JSONArray json) {
+        try {
             for (int i = 0; i < json.length(); i++) {
                 JSONObject obj = json.getJSONObject(i);
                 JSONArray threads = obj.getJSONArray("threads");
@@ -183,8 +181,8 @@ public class GActivity extends Activity {
                             "res/" + post.getInt("no"));
                 }
             }
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-	}
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 }

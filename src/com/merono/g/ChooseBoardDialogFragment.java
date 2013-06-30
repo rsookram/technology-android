@@ -16,64 +16,64 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 public class ChooseBoardDialogFragment extends DialogFragment {
-	private static final String TITLE = "Choose Board";
+    private static final String TITLE = "Choose Board";
 
-	private EditText mEditText;
+    private EditText mEditText;
 
-	@Override
-	public Dialog onCreateDialog(Bundle savedInstanceState) {
-		mEditText = new EditText(getActivity());
-		mEditText.setInputType(InputType.TYPE_CLASS_TEXT); // force one-line
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        mEditText = new EditText(getActivity());
+        mEditText.setInputType(InputType.TYPE_CLASS_TEXT); // force one-line
 
-		if (savedInstanceState != null) {
-			mEditText.setText(savedInstanceState.getString("board_text"));
-		}
+        if (savedInstanceState != null) {
+            mEditText.setText(savedInstanceState.getString("board_text"));
+        }
 
-		mEditText
-				.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-					public boolean onEditorAction(TextView v, int actionId,
-							KeyEvent event) {
-						if (actionId == EditorInfo.IME_ACTION_DONE) {
-							switchBoard(mEditText.getText().toString());
-							ChooseBoardDialogFragment.this.dismiss();
-						}
-						return false;
-					}
-				});
+        mEditText
+                .setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                    public boolean onEditorAction(TextView v, int actionId,
+                            KeyEvent event) {
+                        if (actionId == EditorInfo.IME_ACTION_DONE) {
+                            switchBoard(mEditText.getText().toString());
+                            ChooseBoardDialogFragment.this.dismiss();
+                        }
+                        return false;
+                    }
+                });
 
-		return new AlertDialog.Builder(getActivity())
-				.setTitle(TITLE)
-				.setView(mEditText)
-				.setPositiveButton(android.R.string.ok,
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface d, int button) {
-								switchBoard(mEditText.getText().toString());
-							}
-						}).create();
-	}
+        return new AlertDialog.Builder(getActivity())
+                .setTitle(TITLE)
+                .setView(mEditText)
+                .setPositiveButton(android.R.string.ok,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface d, int button) {
+                                switchBoard(mEditText.getText().toString());
+                            }
+                        }).create();
+    }
 
-	@Override
-	public void onStart() {
-		super.onStart();
+    @Override
+    public void onStart() {
+        super.onStart();
 
-		// make keyboard appear when dialog appears (only works in portrait)
-		mEditText.setOnFocusChangeListener(new OnFocusChangeListener() {
-			public void onFocusChange(View v, boolean hasFocus) {
-				if (hasFocus) {
-					Window window = getDialog().getWindow();
-					window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-				}
-			}
-		});
-	}
+        // make keyboard appear when dialog appears (only works in portrait)
+        mEditText.setOnFocusChangeListener(new OnFocusChangeListener() {
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    Window window = getDialog().getWindow();
+                    window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                }
+            }
+        });
+    }
 
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		outState.putString("board_text", mEditText.getText().toString());
-		super.onSaveInstanceState(outState);
-	}
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        outState.putString("board_text", mEditText.getText().toString());
+        super.onSaveInstanceState(outState);
+    }
 
-	private void switchBoard(String boardName) {
-		((GActivity) getActivity()).switchBoard(boardName);
-	}
+    private void switchBoard(String boardName) {
+        ((GActivity) getActivity()).switchBoard(boardName);
+    }
 }
