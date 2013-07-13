@@ -54,7 +54,7 @@ public class Post {
         SimpleDateFormat dateFormat = new SimpleDateFormat(formatStr, Locale.US);
 
         body = error;
-        name = "Anonymous";
+        name = "Error";
         time = dateFormat.format(new Date());
         id = "0";
         imgUrl = "";

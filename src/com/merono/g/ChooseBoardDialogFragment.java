@@ -23,16 +23,13 @@ public class ChooseBoardDialogFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         mEditText = new EditText(getActivity());
+        mEditText.setId(1); // give id so that it maintains its state
         mEditText.setInputType(InputType.TYPE_CLASS_TEXT); // force one-line
-
-        if (savedInstanceState != null) {
-            mEditText.setText(savedInstanceState.getString("board_text"));
-        }
 
         mEditText
                 .setOnEditorActionListener(new TextView.OnEditorActionListener() {
                     public boolean onEditorAction(TextView v, int actionId,
-                            KeyEvent event) {
+                                                  KeyEvent event) {
                         if (actionId == EditorInfo.IME_ACTION_DONE) {
                             switchBoard(mEditText.getText().toString());
                             ChooseBoardDialogFragment.this.dismiss();
@@ -65,12 +62,6 @@ public class ChooseBoardDialogFragment extends DialogFragment {
                 }
             }
         });
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putString("board_text", mEditText.getText().toString());
-        super.onSaveInstanceState(outState);
     }
 
     private void switchBoard(String boardName) {
