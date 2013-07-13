@@ -14,7 +14,8 @@
         android:name="GApplication"
         android:allowBackup="false"
         android:icon="@drawable/ic_icon"
-        android:label="@string/app_name" >
+        android:label="@string/app_name"
+        android:theme="@style/Theme" >
         <activity android:name=".GActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -23,7 +24,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".ThreadActivity" />
-        <activity android:name=".ImageWebView" />
+        <activity
+            android:name=".ImageWebView"
+            android:theme="@style/ActionBarOverlay" />
         <activity
             android:name=".PrefsActivity"
             android:label="Settings" />

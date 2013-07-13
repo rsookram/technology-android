@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="ActionBarOverlay">
-        <item name="android:background">@android:color/black</item>
+    <style name="Theme" parent="android:Theme.Holo">
+        <item name="android:windowBackground">@android:color/black</item>
+    </style>
+
+    <style name="ActionBarOverlay" parent="Theme">
         <item name="android:windowActionBarOverlay">true</item>
     </style>
 

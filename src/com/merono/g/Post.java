@@ -1,5 +1,8 @@
 package com.merono.g;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -7,10 +10,7 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-    public class Post {
+public class Post {
     private String body;
     private String name;
     private String time;
@@ -103,7 +103,7 @@ import org.json.JSONObject;
     }
 
     public static ArrayList<Post> getQuotedPosts(ArrayList<String> ids,
-            ArrayList<Post> posts) {
+                                                 ArrayList<Post> posts) {
         ArrayList<Post> quotedPosts = new ArrayList<Post>();
         for (String quoteId : ids) {
             for (Post post : posts) {

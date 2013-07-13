@@ -1,11 +1,5 @@
 package com.merono.g;
 
-import java.util.ArrayList;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -22,6 +16,12 @@ import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 public class ThreadActivity extends FragmentActivity {
     private static final int FRAGMENT_COUNT = 2;
@@ -47,11 +47,9 @@ public class ThreadActivity extends FragmentActivity {
         FragmentManager fm = getSupportFragmentManager();
         ViewPager mPager = (ViewPager) findViewById(R.id.thread_pager);
         mPager.setAdapter(new ThreadFragmentPagerAdapter(fm));
-
         mPager.setPageMargin(getResources().getDisplayMetrics().widthPixels / 10);
-        mPager.setPageMarginDrawable(android.R.color.black);
 
-        // Only load when first created
+        // don't reload on configuration change
         if (savedInstanceState == null) {
             loadPosts(getIntent().getStringExtra("URL") + ".json", false);
         }
@@ -120,7 +118,8 @@ public class ThreadActivity extends FragmentActivity {
                         setImageBrowserData();
                         setProgressBarIndeterminateVisibility(false);
                     }
-                }, new ErrorListener() {
+                },
+                new ErrorListener() {
                     public void onErrorResponse(VolleyError error) {
                         if (isRefresh) {
                             Toast.makeText(ThreadActivity.this,
@@ -132,7 +131,8 @@ public class ThreadActivity extends FragmentActivity {
                         }
                         setProgressBarIndeterminateVisibility(false);
                     }
-                }));
+                }
+        ));
         appState.mRequestQueue.start();
     }
 

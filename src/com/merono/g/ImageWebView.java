@@ -17,7 +17,6 @@ public class ImageWebView extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(R.style.ActionBarOverlay);
         getWindow().requestFeature(Window.FEATURE_PROGRESS);
         super.onCreate(savedInstanceState);
 
