@@ -13,32 +13,16 @@ import android.widget.GridView;
 import android.widget.AdapterView.OnItemClickListener;
 
 public class ImageBrowserFragment extends Fragment {
-    private ArrayList<String> thumbImgUrls = null;
-    private ArrayList<String> fullImgUrls = null;
+    private ArrayList<String> thumbImgUrls;
+    private ArrayList<String> fullImgUrls;
 
     private GridView grid;
     private GridImageAdapter gridImageAdapter;
 
-    public ImageBrowserFragment() {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setRetainInstance(true);
-    }
-
-    public void setData(ArrayList<String> thumbImgUrls,
-            ArrayList<String> fullImgUrls) {
-        if (this.thumbImgUrls != null && this.fullImgUrls != null) {
-            this.thumbImgUrls.clear();
-            this.fullImgUrls.clear();
-            this.thumbImgUrls.addAll(thumbImgUrls);
-            this.fullImgUrls.addAll(fullImgUrls);
-            gridImageAdapter.notifyDataSetChanged();
-        } else {
-            this.thumbImgUrls = new ArrayList<String>(thumbImgUrls);
-            this.fullImgUrls = new ArrayList<String>(fullImgUrls);
-        }
-        gridImageAdapter = new GridImageAdapter(getActivity(), thumbImgUrls);
-        if (grid != null) {
-            grid.setAdapter(gridImageAdapter);
-        }
     }
 
     @Override
@@ -60,5 +44,23 @@ public class ImageBrowserFragment extends Fragment {
             }
         });
         return grid;
+    }
+
+    public void setData(ArrayList<String> thumbImgUrls,
+                        ArrayList<String> fullImgUrls) {
+        if (this.thumbImgUrls != null && this.fullImgUrls != null) {
+            this.thumbImgUrls.clear();
+            this.fullImgUrls.clear();
+            this.thumbImgUrls.addAll(thumbImgUrls);
+            this.fullImgUrls.addAll(fullImgUrls);
+            gridImageAdapter.notifyDataSetChanged();
+        } else {
+            this.thumbImgUrls = new ArrayList<String>(thumbImgUrls);
+            this.fullImgUrls = new ArrayList<String>(fullImgUrls);
+        }
+        gridImageAdapter = new GridImageAdapter(getActivity(), thumbImgUrls);
+        if (grid != null) {
+            grid.setAdapter(gridImageAdapter);
+        }
     }
 }

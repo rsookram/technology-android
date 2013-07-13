@@ -30,9 +30,9 @@ public class GActivity extends Activity {
     private static final String API_URL = "https://api.4chan.org%scatalog.json";
 
     private static String mBoardName;
-    private static final ArrayList<String> threadLinks = new ArrayList<String>();
+    private static final ArrayList<String> threadLinks = new ArrayList<String>(15);
 
-    private ArrayList<Post> posts = new ArrayList<Post>();
+    private ArrayList<Post> posts = new ArrayList<Post>(15);
     private PostAdapter adapter;
 
     @Override

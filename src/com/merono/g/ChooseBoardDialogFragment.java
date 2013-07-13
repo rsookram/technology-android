@@ -16,14 +16,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 public class ChooseBoardDialogFragment extends DialogFragment {
-    private static final String TITLE = "Choose Board";
 
     private EditText mEditText;
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         mEditText = new EditText(getActivity());
-        mEditText.setId(1); // give id so that it maintains its state
+        mEditText.setId(1); // set id so that it maintains its state
         mEditText.setInputType(InputType.TYPE_CLASS_TEXT); // force one-line
 
         mEditText
@@ -39,7 +38,7 @@ public class ChooseBoardDialogFragment extends DialogFragment {
                 });
 
         return new AlertDialog.Builder(getActivity())
-                .setTitle(TITLE)
+                .setTitle(getString(R.string.choose_board))
                 .setView(mEditText)
                 .setPositiveButton(android.R.string.ok,
                         new DialogInterface.OnClickListener() {
