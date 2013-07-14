@@ -29,6 +29,8 @@ public class ThreadActivity extends FragmentActivity {
     private ThreadFragment threadFragment;
     private ImageBrowserFragment imageBrowserFragment;
 
+    private MenuItem refreshItem;
+
     private ArrayList<Post> posts = new ArrayList<Post>(1);
 
     @Override
@@ -79,6 +81,7 @@ public class ThreadActivity extends FragmentActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.thread_menu, menu);
+        refreshItem = menu.findItem(R.id.refresh);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -107,6 +110,9 @@ public class ThreadActivity extends FragmentActivity {
 
     private void loadPosts(String url, final boolean isRefresh) {
         setProgressBarIndeterminateVisibility(true);
+        if (refreshItem != null) {
+            refreshItem.setVisible(false);
+        }
 
         GApplication appState = (GApplication) getApplication();
         appState.mRequestQueue.add(new JsonObjectRequest(Method.GET, url, null,
@@ -117,6 +123,7 @@ public class ThreadActivity extends FragmentActivity {
                         threadFragment.setData(posts);
                         setImageBrowserData();
                         setProgressBarIndeterminateVisibility(false);
+                        refreshItem.setVisible(true);
                     }
                 },
                 new ErrorListener() {
@@ -130,6 +137,7 @@ public class ThreadActivity extends FragmentActivity {
                             threadFragment.setData(posts);
                         }
                         setProgressBarIndeterminateVisibility(false);
+                        refreshItem.setVisible(true);
                     }
                 }
         ));

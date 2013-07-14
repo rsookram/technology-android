@@ -32,6 +32,8 @@ public class GActivity extends Activity {
     private static String mBoardName;
     private static final ArrayList<String> threadLinks = new ArrayList<String>(15);
 
+    private MenuItem refreshItem;
+
     private ArrayList<Post> posts = new ArrayList<Post>(15);
     private PostAdapter adapter;
 
@@ -72,6 +74,7 @@ public class GActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
+        refreshItem = menu.findItem(R.id.refresh);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -133,11 +136,11 @@ public class GActivity extends Activity {
 
         final Intent intent = new Intent(this, ImageWebView.class);
         lv.setOnItemLongClickListener(new OnItemLongClickListener() {
-            public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
+            public boolean onItemLongClick(AdapterView<?> av, View arg1,
                     int position, long arg3) {
-                if (posts.get(position).hasFullImgUrl()) {
-                    String imgToLoad = posts.get(position).getFullImgUrl();
-                    intent.putExtra("URL", imgToLoad);
+                Post selected = (Post) av.getItemAtPosition(position);
+                if (selected.hasFullImgUrl()) {
+                    intent.putExtra("URL", selected.getFullImgUrl());
                     startActivity(intent);
                     return true;
                 }
@@ -148,6 +151,9 @@ public class GActivity extends Activity {
 
     private void loadThreads(String url) {
         setProgressBarIndeterminateVisibility(true);
+        if (refreshItem != null) {
+            refreshItem.setVisible(false);
+        }
 
         GApplication appState = (GApplication) getApplication();
         appState.mRequestQueue.add(new JsonArrayRequest(url,
@@ -157,6 +163,7 @@ public class GActivity extends Activity {
                         adapter.notifyDataSetChanged();
 
                         setProgressBarIndeterminateVisibility(false);
+                        refreshItem.setVisible(true);
                     }
                 }, new ErrorListener() {
                     public void onErrorResponse(VolleyError error) {
@@ -164,6 +171,7 @@ public class GActivity extends Activity {
                         threadLinks.add(null);
                         adapter.notifyDataSetChanged();
                         setProgressBarIndeterminateVisibility(false);
+                        refreshItem.setVisible(true);
                     }
                 }));
         appState.mRequestQueue.start();
