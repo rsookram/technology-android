@@ -33,8 +33,8 @@ public class Post {
             name = postJSON.optString("trip");
         }
 
-        // remove day of the week
-        time = postJSON.optString("now").replaceFirst("\\(.*?\\)", "  ");
+        // remove year and day of the week
+        time = postJSON.optString("now").replaceFirst("/\\d+\\(.*?\\)", "  ");
 
         id = String.valueOf(postJSON.optInt("no"));
 
@@ -50,7 +50,7 @@ public class Post {
     }
 
     public Post(String error) {
-        String formatStr = "MM/dd/yy  HH:mm";
+        String formatStr = "MM/dd  HH:mm";
         SimpleDateFormat dateFormat = new SimpleDateFormat(formatStr, Locale.US);
 
         body = error;
