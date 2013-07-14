@@ -2,7 +2,6 @@ package com.merono.g;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.view.View;
@@ -28,14 +27,13 @@ public class ThreadFragment extends ListFragment {
         super.onViewCreated(view, savedInstanceState);
         setListAdapter(adapter);
 
-        final Intent intent = new Intent(getActivity(), ImageWebView.class);
         getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
             public boolean onItemLongClick(AdapterView<?> av, View arg1,
                                            int position, long arg3) {
                 Post selected = (Post) av.getItemAtPosition(position);
                 if (selected.hasFullImgUrl()) {
-                    intent.putExtra("URL", selected.getFullImgUrl());
-                    startActivity(intent);
+                    String imgUrl = selected.getFullImgUrl();
+                    ImageWebView.openImageWebView(getActivity(), imgUrl);
                     return true;
                 }
                 return false;

@@ -130,14 +130,13 @@ public class GActivity extends ListActivity {
     }
 
     private void setupOnItemLongClickListener() {
-        final Intent intent = new Intent(this, ImageWebView.class);
         getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
             public boolean onItemLongClick(AdapterView<?> av, View arg1,
                                            int position, long arg3) {
                 Post selected = (Post) av.getItemAtPosition(position);
                 if (selected.hasFullImgUrl()) {
-                    intent.putExtra("URL", selected.getFullImgUrl());
-                    startActivity(intent);
+                    String imgUrl = selected.getFullImgUrl();
+                    ImageWebView.openImageWebView(GActivity.this, imgUrl);
                     return true;
                 }
                 return false;

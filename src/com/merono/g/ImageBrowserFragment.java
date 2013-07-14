@@ -1,6 +1,5 @@
 package com.merono.g;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -34,13 +33,11 @@ public class ImageBrowserFragment extends Fragment {
         gridImageAdapter = new GridImageAdapter(getActivity(), thumbImgUrls);
         grid.setAdapter(gridImageAdapter);
 
-        final Intent intent = new Intent(getActivity(), ImageWebView.class);
         grid.setOnItemClickListener(new OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                     int position, long id) {
-                String selected = fullImgUrls.get(position);
-                intent.putExtra("URL", selected);
-                startActivity(intent);
+                String imgUrl = fullImgUrls.get(position);
+                ImageWebView.openImageWebView(getActivity(), imgUrl);
             }
         });
         return grid;

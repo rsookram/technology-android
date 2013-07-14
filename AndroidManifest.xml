@@ -24,9 +24,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".ThreadActivity" />
-        <activity
-            android:name=".ImageWebView"
-            android:theme="@style/ActionBarOverlay" />
+        <activity android:name=".ImageWebView" />
         <activity
             android:name=".PrefsActivity"
             android:label="Settings" />
