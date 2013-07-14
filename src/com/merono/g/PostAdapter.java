@@ -1,7 +1,5 @@
 package com.merono.g;
 
-import java.util.ArrayList;
-
 import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -11,6 +9,8 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.android.volley.toolbox.NetworkImageView;
+
+import java.util.ArrayList;
 
 public class PostAdapter extends ArrayAdapter<Post> {
     private int postItemResourceId;

@@ -1,11 +1,11 @@
 package com.merono.g;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Utils {
     public static String getCurrentBoard(Context context) {

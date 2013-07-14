@@ -23,7 +23,7 @@ public class ChooseBoardDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         mEditText = new EditText(getActivity());
         mEditText.setId(1); // set id so that it maintains its state
-        mEditText.setInputType(InputType.TYPE_CLASS_TEXT); // force one-line
+        mEditText.setSingleLine();
 
         mEditText
                 .setOnEditorActionListener(new TextView.OnEditorActionListener() {

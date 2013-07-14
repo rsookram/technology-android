@@ -1,13 +1,7 @@
 package com.merono.g;
 
-import java.util.ArrayList;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.app.Activity;
 import android.app.DialogFragment;
+import android.app.ListActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -17,7 +11,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 
@@ -26,7 +19,13 @@ import com.android.volley.Response.Listener;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 
-public class GActivity extends Activity {
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+
+public class GActivity extends ListActivity {
     private static final String API_URL = "https://api.4chan.org%scatalog.json";
 
     private static String mBoardName;
@@ -35,13 +34,11 @@ public class GActivity extends Activity {
     private MenuItem refreshItem;
 
     private ArrayList<Post> posts = new ArrayList<Post>(15);
-    private PostAdapter adapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
-        setContentView(R.layout.thread_layout);
 
         PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
         SharedPreferences pref = PreferenceManager
@@ -58,9 +55,9 @@ public class GActivity extends Activity {
             posts = new ArrayList<Post>(previousPosts);
         }
 
-        adapter = new PostAdapter(this, R.layout.post_item, posts);
-        ((ListView) findViewById(R.id.list)).setAdapter(adapter);
-        setupOnItemClickListeners();
+        PostAdapter adapter = new PostAdapter(this, R.layout.post_item, posts);
+        setListAdapter(adapter);
+        setupOnItemLongClickListener();
 
         getActionBar().setDisplayShowHomeEnabled(false);
         setTitle(mBoardName);
@@ -98,6 +95,8 @@ public class GActivity extends Activity {
     public void refresh() {
         posts.clear();
         threadLinks.clear();
+
+        PostAdapter adapter = (PostAdapter) getListAdapter();
         if (adapter != null) {
             adapter.notifyDataSetChanged();
         }
@@ -120,24 +119,21 @@ public class GActivity extends Activity {
         refresh();
     }
 
-    private void setupOnItemClickListeners() {
-        ListView lv = (ListView) findViewById(R.id.list);
+    @Override
+    protected void onListItemClick(ListView l, View v, int position, long id) {
+        super.onListItemClick(l, v, position, id);
+        if (threadLinks.get(position) != null) {
+            Intent i = new Intent(this, ThreadActivity.class);
+            i.putExtra("URL", threadLinks.get(position));
+            startActivity(i);
+        }
+    }
 
-        final Intent i = new Intent(this, ThreadActivity.class);
-        lv.setOnItemClickListener(new OnItemClickListener() {
-            public void onItemClick(AdapterView<?> arg0, View arg1,
-                    int position, long arg3) {
-                if (threadLinks.get(position) != null) {
-                    i.putExtra("URL", threadLinks.get(position));
-                    startActivity(i);
-                }
-            }
-        });
-
+    private void setupOnItemLongClickListener() {
         final Intent intent = new Intent(this, ImageWebView.class);
-        lv.setOnItemLongClickListener(new OnItemLongClickListener() {
+        getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
             public boolean onItemLongClick(AdapterView<?> av, View arg1,
-                    int position, long arg3) {
+                                           int position, long arg3) {
                 Post selected = (Post) av.getItemAtPosition(position);
                 if (selected.hasFullImgUrl()) {
                     intent.putExtra("URL", selected.getFullImgUrl());
@@ -160,21 +156,23 @@ public class GActivity extends Activity {
                 new Listener<JSONArray>() {
                     public void onResponse(JSONArray response) {
                         parseJSON(response);
-                        adapter.notifyDataSetChanged();
-
-                        setProgressBarIndeterminateVisibility(false);
-                        refreshItem.setVisible(true);
+                        completeLoad();
                     }
                 }, new ErrorListener() {
                     public void onErrorResponse(VolleyError error) {
                         posts.add(new Post(error.getMessage()));
                         threadLinks.add(null);
-                        adapter.notifyDataSetChanged();
-                        setProgressBarIndeterminateVisibility(false);
-                        refreshItem.setVisible(true);
+                        completeLoad();
                     }
                 }));
         appState.mRequestQueue.start();
+    }
+
+    private void completeLoad() {
+        ((PostAdapter) getListAdapter()).notifyDataSetChanged();
+
+        setProgressBarIndeterminateVisibility(false);
+        refreshItem.setVisible(true);
     }
 
     private void parseJSON(JSONArray json) {
