@@ -102,19 +102,19 @@ public class Post {
         return (quoteIds != null) && !quoteIds.isEmpty();
     }
 
-    public static ArrayList<Post> getQuotedPosts(ArrayList<String> ids,
-                                                 ArrayList<Post> posts) {
-        ArrayList<Post> quotedPosts = new ArrayList<Post>();
-        for (String quoteId : ids) {
+    public static ArrayList<Post> selectPostsByIds(ArrayList<String> ids,
+                                                   ArrayList<Post> posts) {
+        ArrayList<Post> selectedPosts = new ArrayList<Post>();
+        for (String id : ids) {
             for (Post post : posts) {
-                if (post.getId().equals(quoteId)) {
-                    quotedPosts.add(post);
+                if (post.getId().equals(id)) {
+                    selectedPosts.add(post);
                     break;
                 }
             }
         }
 
-        return quotedPosts;
+        return selectedPosts;
     }
 
     public static ArrayList<Post> getImagePosts(ArrayList<Post> posts) {

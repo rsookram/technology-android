@@ -1,8 +1,7 @@
 package com.merono.g;
 
-import android.app.Activity;
-import android.app.AlertDialog;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.ListFragment;
 import android.view.View;
 import android.widget.AdapterView;
@@ -54,16 +53,8 @@ public class ThreadFragment extends ListFragment {
             return;
         }
 
-        ArrayList<String> quoteIds = post.getQuoteIds();
-        ArrayList<Post> quotedPosts = Post.getQuotedPosts(quoteIds, posts);
-        quotedPosts.add(post);
-
-        Activity activity = getActivity();
-        ListView quoteList = new ListView(activity);
-        quoteList.setAdapter(new PostAdapter(activity, R.layout.post_item,
-                quotedPosts));
-
-        new AlertDialog.Builder(activity).setView(quoteList).show();
+        DialogFragment quoteFragment = QuoteDialogFragment.newInstance(post, posts);
+        quoteFragment.show(getFragmentManager(), "choose_board_dialog");
     }
 
     @Override

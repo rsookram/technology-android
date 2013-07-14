@@ -139,7 +139,9 @@ public class BoardActivity extends FragmentActivity {
         boardFragment.setData(posts, threadLinks);
 
         setProgressBarIndeterminateVisibility(false);
-        refreshItem.setVisible(true);
+        if (refreshItem != null) {
+            refreshItem.setVisible(true);
+        }
     }
 
     private void parseJSON(JSONArray json) {
