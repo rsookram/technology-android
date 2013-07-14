@@ -1,18 +1,16 @@
 package com.merono.g;
 
 import android.app.DialogFragment;
-import android.app.ListActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.Window;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.ListView;
 
 import com.android.volley.Response.ErrorListener;
 import com.android.volley.Response.Listener;
@@ -25,14 +23,15 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class GActivity extends ListActivity {
+public class BoardActivity extends FragmentActivity {
     private static final String API_URL = "https://api.4chan.org%scatalog.json";
 
-    private static String mBoardName;
-    private static final ArrayList<String> threadLinks = new ArrayList<String>(15);
+    private String mBoardName;
 
+    private BoardFragment boardFragment;
     private MenuItem refreshItem;
 
+    private ArrayList<String> threadLinks = new ArrayList<String>(15);
     private ArrayList<Post> posts = new ArrayList<Post>(15);
 
     @Override
@@ -44,28 +43,22 @@ public class GActivity extends ListActivity {
         SharedPreferences pref = PreferenceManager
                 .getDefaultSharedPreferences(this);
 
-        ArrayList<Post> previousPosts = (ArrayList<Post>) getLastNonConfigurationInstance();
-        if (previousPosts == null) {
+        // don't reload on configuration change
+        if (savedInstanceState == null) {
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            boardFragment = new BoardFragment();
+            ft.replace(android.R.id.content, boardFragment, "board_fragment").commit();
+
             mBoardName = pref.getString("board", "/g/");
             pref.edit().putString("currentBoard", mBoardName).commit();
 
             loadThreads(String.format(API_URL, mBoardName));
         } else {
             mBoardName = pref.getString("currentBoard", "/g/");
-            posts = new ArrayList<Post>(previousPosts);
         }
-
-        PostAdapter adapter = new PostAdapter(this, R.layout.post_item, posts);
-        setListAdapter(adapter);
-        setupOnItemLongClickListener();
 
         getActionBar().setDisplayShowHomeEnabled(false);
         setTitle(mBoardName);
-    }
-
-    @Override
-    public Object onRetainNonConfigurationInstance() {
-        return posts;
     }
 
     @Override
@@ -96,11 +89,6 @@ public class GActivity extends ListActivity {
         posts.clear();
         threadLinks.clear();
 
-        PostAdapter adapter = (PostAdapter) getListAdapter();
-        if (adapter != null) {
-            adapter.notifyDataSetChanged();
-        }
-
         setTitle(mBoardName);
 
         loadThreads(String.format(API_URL, mBoardName));
@@ -117,31 +105,6 @@ public class GActivity extends ListActivity {
                 .getDefaultSharedPreferences(this);
         pref.edit().putString("currentBoard", mBoardName).commit();
         refresh();
-    }
-
-    @Override
-    protected void onListItemClick(ListView l, View v, int position, long id) {
-        super.onListItemClick(l, v, position, id);
-        if (threadLinks.get(position) != null) {
-            Intent i = new Intent(this, ThreadActivity.class);
-            i.putExtra("URL", threadLinks.get(position));
-            startActivity(i);
-        }
-    }
-
-    private void setupOnItemLongClickListener() {
-        getListView().setOnItemLongClickListener(new OnItemLongClickListener() {
-            public boolean onItemLongClick(AdapterView<?> av, View arg1,
-                                           int position, long arg3) {
-                Post selected = (Post) av.getItemAtPosition(position);
-                if (selected.hasFullImgUrl()) {
-                    String imgUrl = selected.getFullImgUrl();
-                    ImageWebView.openImageWebView(GActivity.this, imgUrl);
-                    return true;
-                }
-                return false;
-            }
-        });
     }
 
     private void loadThreads(String url) {
@@ -168,7 +131,12 @@ public class GActivity extends ListActivity {
     }
 
     private void completeLoad() {
-        ((PostAdapter) getListAdapter()).notifyDataSetChanged();
+        // boardFragment is null after config change
+        if (boardFragment == null) {
+            FragmentManager fm = getSupportFragmentManager();
+            boardFragment = (BoardFragment) fm.findFragmentById(android.R.id.content);
+        }
+        boardFragment.setData(posts, threadLinks);
 
         setProgressBarIndeterminateVisibility(false);
         refreshItem.setVisible(true);

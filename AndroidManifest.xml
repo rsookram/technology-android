@@ -16,7 +16,7 @@
         android:icon="@drawable/ic_icon"
         android:label="@string/app_name"
         android:theme="@style/Theme" >
-        <activity android:name=".GActivity" >
+        <activity android:name=".BoardActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -17,4 +17,5 @@ local.properties
 
 # Stuff for android studio
 .idea/
+out/
 technology-android.iml

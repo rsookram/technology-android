@@ -5,7 +5,6 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.text.InputType;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnFocusChangeListener;
@@ -64,6 +63,6 @@ public class ChooseBoardDialogFragment extends DialogFragment {
     }
 
     private void switchBoard(String boardName) {
-        ((GActivity) getActivity()).switchBoard(boardName);
+        ((BoardActivity) getActivity()).switchBoard(boardName);
     }
 }
