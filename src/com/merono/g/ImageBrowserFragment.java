@@ -37,7 +37,7 @@ public class ImageBrowserFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View v,
                     int position, long id) {
                 String imgUrl = fullImgUrls.get(position);
-                ImageWebView.openImageWebView(getActivity(), imgUrl);
+                ImageWebViewFragment.openImageWebView(getActivity(), imgUrl);
             }
         });
         return grid;

@@ -32,7 +32,7 @@ public class ThreadFragment extends ListFragment {
                 Post selected = (Post) av.getItemAtPosition(position);
                 if (selected.hasFullImgUrl()) {
                     String imgUrl = selected.getFullImgUrl();
-                    ImageWebView.openImageWebView(getActivity(), imgUrl);
+                    ImageWebViewFragment.openImageWebView(getActivity(), imgUrl);
                     return true;
                 }
                 return false;
