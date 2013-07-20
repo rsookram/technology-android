@@ -2,6 +2,9 @@ package com.merono.g;
 
 import android.app.Activity;
 import android.content.Context;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +40,7 @@ public class PostAdapter extends ArrayAdapter<Post> {
         viewHolder.timeView.setText(entry.getTime());
         viewHolder.idView.setText(idLabel);
         viewHolder.bodyView.setText(entry.getText());
+        makeGreenText(viewHolder.bodyView);
 
         if (!entry.hasImgUrl()) {
             viewHolder.imageView.setVisibility(View.GONE);
@@ -96,5 +100,45 @@ public class PostAdapter extends ArrayAdapter<Post> {
         }
 
         return viewHolder;
+    }
+
+    private void makeGreenText(TextView tv) {
+        int spanStart;
+        int spanEnd = 0;
+        int colour = mActivity.getResources().getColor(R.color.green_text);
+
+        String text = tv.getText().toString();
+        Spannable spanRange = new SpannableString(text);
+        String target = "\n>";
+
+        // case where first line is green text
+        if (text.indexOf(">") == 0) {
+            spanStart = 0;
+            spanEnd = text.indexOf("\n");
+            if (spanEnd < 0) {
+                spanEnd = text.length();
+            }
+            ForegroundColorSpan foreColour = new ForegroundColorSpan(colour);
+            spanRange.setSpan(foreColour, spanStart, spanEnd,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+
+        while (true) {
+            spanStart = text.indexOf(target, spanEnd);
+            // Need a new span object every loop, else it just moves the span
+            ForegroundColorSpan foreColour = new ForegroundColorSpan(colour);
+            if (spanStart < 0) {
+                break;
+            }
+
+            spanEnd = text.indexOf("\n", spanStart + 1);
+            if (spanEnd < 0) {
+                spanEnd = text.length();
+            }
+            spanRange.setSpan(foreColour, spanStart, spanEnd,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+
+        tv.setText(spanRange);
     }
 }

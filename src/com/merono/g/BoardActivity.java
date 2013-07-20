@@ -85,7 +85,7 @@ public class BoardActivity extends FragmentActivity {
         }
     }
 
-    public void refresh() {
+    private void refresh() {
         posts.clear();
         threadLinks.clear();
 
