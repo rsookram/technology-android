@@ -31,7 +31,8 @@ public class ThreadActivity extends FragmentActivity {
 
     private MenuItem refreshItem;
 
-    private ArrayList<Post> posts = new ArrayList<Post>(1);
+    private static String cachedUrl;
+    private static ArrayList<Post> posts = new ArrayList<Post>(1);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,7 +109,7 @@ public class ThreadActivity extends FragmentActivity {
         imageBrowserFragment.setData(thumbUrls, fullImgUrls);
     }
 
-    private void loadPosts(String url, final boolean isRefresh) {
+    private void loadPosts(final String url, final boolean isRefresh) {
         setProgressBarIndeterminateVisibility(true);
         if (refreshItem != null) {
             refreshItem.setVisible(false);
@@ -120,6 +121,7 @@ public class ThreadActivity extends FragmentActivity {
                     public void onResponse(JSONObject response) {
                         posts.clear();
                         parseJSON(response);
+                        cachedUrl = url;
                         threadFragment.setData(posts);
                         setImageBrowserData();
                         setProgressBarIndeterminateVisibility(false);
@@ -132,7 +134,8 @@ public class ThreadActivity extends FragmentActivity {
                             Toast.makeText(ThreadActivity.this,
                                     error.getMessage(), Toast.LENGTH_LONG)
                                     .show();
-                        } else {
+                        } else if (!loadCachedPosts(url)) {
+                            posts.clear();
                             posts.add(new Post(error.getMessage()));
                             threadFragment.setData(posts);
                         }
@@ -142,6 +145,16 @@ public class ThreadActivity extends FragmentActivity {
                 }
         ));
         appState.mRequestQueue.start();
+    }
+
+    private boolean loadCachedPosts(String url) {
+        if (!url.equals(cachedUrl)) {
+            return false;
+        }
+
+        threadFragment.setData(posts);
+        setImageBrowserData();
+        return true;
     }
 
     private void parseJSON(JSONObject json) {
