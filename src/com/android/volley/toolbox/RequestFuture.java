@@ -68,6 +68,7 @@ public class RequestFuture<T> implements Future<T>, Response.Listener<T>,
         mRequest = request;
     }
 
+    @Override
     public synchronized boolean cancel(boolean mayInterruptIfRunning) {
         if (mRequest == null) {
             return false;
@@ -81,6 +82,7 @@ public class RequestFuture<T> implements Future<T>, Response.Listener<T>,
         }
     }
 
+    @Override
     public T get() throws InterruptedException, ExecutionException {
         try {
             return doGet(null);
@@ -89,6 +91,7 @@ public class RequestFuture<T> implements Future<T>, Response.Listener<T>,
         }
     }
 
+    @Override
     public T get(long timeout, TimeUnit unit)
             throws InterruptedException, ExecutionException, TimeoutException {
         return doGet(TimeUnit.MILLISECONDS.convert(timeout, unit));
@@ -121,6 +124,7 @@ public class RequestFuture<T> implements Future<T>, Response.Listener<T>,
         return mResult;
     }
 
+    @Override
     public boolean isCancelled() {
         if (mRequest == null) {
             return false;
@@ -128,16 +132,19 @@ public class RequestFuture<T> implements Future<T>, Response.Listener<T>,
         return mRequest.isCanceled();
     }
 
+    @Override
     public synchronized boolean isDone() {
         return mResultReceived || mException != null || isCancelled();
     }
 
+    @Override
     public synchronized void onResponse(T response) {
         mResultReceived = true;
         mResult = response;
         notifyAll();
     }
 
+    @Override
     public synchronized void onErrorResponse(VolleyError error) {
         mException = error;
         notifyAll();

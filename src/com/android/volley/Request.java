@@ -193,6 +193,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
                 // actually do it on the main thread to ensure correct ordering.
                 Handler mainThread = new Handler(Looper.getMainLooper());
                 mainThread.post(new Runnable() {
+                    @Override
                     public void run() {
                         mEventLog.add(tag, threadId);
                         mEventLog.finish(this.toString());
@@ -521,6 +522,7 @@ public abstract class Request<T> implements Comparable<Request<T>> {
      * Our comparator sorts from high to low priority, and secondarily by
      * sequence number to provide FIFO ordering.
      */
+    @Override
     public int compareTo(Request<T> other) {
         Priority left = this.getPriority();
         Priority right = other.getPriority();

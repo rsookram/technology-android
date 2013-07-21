@@ -18,6 +18,7 @@ package com.android.volley.toolbox;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.ImageView;
 
 import com.android.volley.VolleyError;
@@ -103,8 +104,12 @@ public class NetworkImageView extends ImageView {
         int width = getWidth();
         int height = getHeight();
 
-        // if the view's bounds aren't known yet, hold off on loading the image.
-        if (width == 0 && height == 0) {
+        boolean isFullyWrapContent = getLayoutParams() != null
+                && getLayoutParams().height == LayoutParams.WRAP_CONTENT
+                && getLayoutParams().width == LayoutParams.WRAP_CONTENT;
+        // if the view's bounds aren't known yet, and this is not a wrap-content/wrap-content
+        // view, hold off on loading the image.
+        if (width == 0 && height == 0 && !isFullyWrapContent) {
             return;
         }
 
@@ -135,12 +140,14 @@ public class NetworkImageView extends ImageView {
         // from the network.
         ImageContainer newContainer = mImageLoader.get(mUrl,
                 new ImageListener() {
+                    @Override
                     public void onErrorResponse(VolleyError error) {
                         if (mErrorImageId != 0) {
                             setImageResource(mErrorImageId);
                         }
                     }
 
+                    @Override
                     public void onResponse(final ImageContainer response, boolean isImmediate) {
                         // If this was an immediate response that was delivered inside of a layout
                         // pass do not set the image immediately as it will trigger a requestLayout
@@ -148,6 +155,7 @@ public class NetworkImageView extends ImageView {
                         // the main thread.
                         if (isImmediate && isInLayoutPass) {
                             post(new Runnable() {
+                                @Override
                                 public void run() {
                                     onResponse(response, false);
                                 }

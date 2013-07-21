@@ -67,6 +67,7 @@ public class HttpClientStack implements HttpStack {
         return result;
     }
 
+    @Override
     public HttpResponse performRequest(Request<?> request, Map<String, String> additionalHeaders)
             throws IOException, AuthFailureError {
         HttpUriRequest httpRequest = createHttpRequest(request, additionalHeaders);

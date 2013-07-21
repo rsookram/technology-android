@@ -67,6 +67,7 @@ public class ByteArrayPool {
 
     /** Compares buffers by size */
     protected static final Comparator<byte[]> BUF_COMPARATOR = new Comparator<byte[]>() {
+        @Override
         public int compare(byte[] lhs, byte[] rhs) {
             return lhs.length - rhs.length;
         }
