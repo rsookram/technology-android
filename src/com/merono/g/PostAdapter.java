@@ -20,12 +20,16 @@ public class PostAdapter extends ArrayAdapter<Post> {
     private Activity mActivity;
     private LayoutInflater mInflater;
 
+    private final int greenTextColour;
+
     public PostAdapter(Activity activity, int resourceId, ArrayList<Post> posts) {
         super(activity, resourceId, posts);
         postItemResourceId = resourceId;
         mActivity = activity;
         mInflater = (LayoutInflater) activity
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        greenTextColour = activity.getResources().getColor(R.color.green_text);
     }
 
     @Override
@@ -39,8 +43,7 @@ public class PostAdapter extends ArrayAdapter<Post> {
         viewHolder.nameView.setText(entry.getName());
         viewHolder.timeView.setText(entry.getTime());
         viewHolder.idView.setText(idLabel);
-        viewHolder.bodyView.setText(entry.getText());
-        makeGreenText(viewHolder.bodyView);
+        makeGreenText(viewHolder.bodyView, entry.getText());
 
         if (!entry.hasImgUrl()) {
             viewHolder.imageView.setVisibility(View.GONE);
@@ -55,15 +58,11 @@ public class PostAdapter extends ArrayAdapter<Post> {
     }
 
     private View getWorkingView(final View convertView, ViewGroup parent) {
-        View workingView;
-
         if (convertView == null) {
-            workingView = mInflater.inflate(postItemResourceId, parent, false);
+            return mInflater.inflate(postItemResourceId, parent, false);
         } else {
-            workingView = convertView;
+            return convertView;
         }
-
-        return workingView;
     }
 
     private static class ViewHolder {
@@ -102,36 +101,35 @@ public class PostAdapter extends ArrayAdapter<Post> {
         return viewHolder;
     }
 
-    private void makeGreenText(TextView tv) {
+    private void makeGreenText(TextView tv, String text) {
         int spanStart;
         int spanEnd = 0;
-        int colour = mActivity.getResources().getColor(R.color.green_text);
 
-        String text = tv.getText().toString();
+        final String targetStart = "\n>";
+        final String targetEnd = "\n";
         Spannable spanRange = new SpannableString(text);
-        String target = "\n>";
 
         // case where first line is green text
         if (text.indexOf(">") == 0) {
-            spanStart = 0;
-            spanEnd = text.indexOf("\n");
+            spanEnd = text.indexOf(targetEnd);
             if (spanEnd < 0) {
                 spanEnd = text.length();
             }
-            ForegroundColorSpan foreColour = new ForegroundColorSpan(colour);
-            spanRange.setSpan(foreColour, spanStart, spanEnd,
+            ForegroundColorSpan foreColour = new ForegroundColorSpan(greenTextColour);
+            spanRange.setSpan(foreColour, 0, spanEnd,
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
         while (true) {
-            spanStart = text.indexOf(target, spanEnd);
+            spanStart = text.indexOf(targetStart, spanEnd);
             // Need a new span object every loop, else it just moves the span
-            ForegroundColorSpan foreColour = new ForegroundColorSpan(colour);
+            ForegroundColorSpan foreColour = new ForegroundColorSpan(greenTextColour);
             if (spanStart < 0) {
                 break;
             }
 
-            spanEnd = text.indexOf("\n", spanStart + 1);
+            // +1 so that the '\n' in target isn't found
+            spanEnd = text.indexOf(targetEnd, spanStart + 1);
             if (spanEnd < 0) {
                 spanEnd = text.length();
             }
