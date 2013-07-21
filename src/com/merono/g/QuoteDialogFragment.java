@@ -40,7 +40,7 @@ public class QuoteDialogFragment extends DialogFragment implements GestureDetect
             }
         };
 
-        lv.setAdapter(new PostAdapter(activity, R.layout.post_item, posts));
+        lv.setAdapter(new PostAdapter(activity, R.layout.post_item, posts, null));
 
         return new AlertDialog.Builder(activity).setView(lv).create();
     }

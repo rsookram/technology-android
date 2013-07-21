@@ -18,7 +18,7 @@ public class ThreadFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        adapter = new PostAdapter(getActivity(), R.layout.post_item, posts);
+        adapter = new PostAdapter(getActivity(), R.layout.post_item, posts, null);
     }
 
     @Override

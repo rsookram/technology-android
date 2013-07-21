@@ -140,7 +140,9 @@ public class ThreadActivity extends FragmentActivity {
                             threadFragment.setData(posts);
                         }
                         setProgressBarIndeterminateVisibility(false);
-                        refreshItem.setVisible(true);
+                        if (refreshItem != null) {
+                            refreshItem.setVisible(true);
+                        }
                     }
                 }
         ));

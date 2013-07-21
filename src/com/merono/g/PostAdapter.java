@@ -18,14 +18,16 @@ import java.util.ArrayList;
 public class PostAdapter extends ArrayAdapter<Post> {
     private int postItemResourceId;
     private Activity mActivity;
+    private View.OnTouchListener mTouchListener;
     private LayoutInflater mInflater;
 
     private final int greenTextColour;
 
-    public PostAdapter(Activity activity, int resourceId, ArrayList<Post> posts) {
+    public PostAdapter(Activity activity, int resourceId, ArrayList<Post> posts, View.OnTouchListener listener) {
         super(activity, resourceId, posts);
         postItemResourceId = resourceId;
         mActivity = activity;
+        mTouchListener = listener;
         mInflater = (LayoutInflater) activity
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
@@ -37,6 +39,10 @@ public class PostAdapter extends ArrayAdapter<Post> {
         final View view = getWorkingView(convertView, parent);
         final ViewHolder viewHolder = getViewHolder(view);
         final Post entry = getItem(position);
+
+        if (mTouchListener != null) {
+            view.setOnTouchListener(mTouchListener);
+        }
 
         String idLabel = mActivity.getString(R.string.id_label, entry.getId());
 
