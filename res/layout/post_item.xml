@@ -3,21 +3,28 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <com.android.volley.toolbox.NetworkImageView
-        android:id="@+id/post_img"
+    <FrameLayout
+        android:id="@+id/post_img_frame"
         android:layout_width="70dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
-        android:contentDescription="@string/content_description"
-        android:padding="3dp" />
+        android:layout_margin="3dp" >
+
+        <com.android.volley.toolbox.NetworkImageView
+            android:id="@+id/post_img"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/content_description" />
+
+    </FrameLayout>
 
     <TextView
         style="@style/PostItemExtraInfo"
         android:id="@+id/post_name"
-        android:layout_alignTop="@id/post_img"
+        android:layout_alignTop="@id/post_img_frame"
         android:layout_margin="5dp"
-        android:layout_toRightOf="@id/post_img" />
+        android:layout_toRightOf="@id/post_img_frame" />
 
     <TextView
         style="@style/PostItemExtraInfo"

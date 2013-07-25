@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import com.android.volley.toolbox.NetworkImageView;
@@ -52,9 +53,9 @@ public class PostAdapter extends ArrayAdapter<Post> {
         makeGreenText(viewHolder.bodyView, entry.getText());
 
         if (!entry.hasImgUrl()) {
-            viewHolder.imageView.setVisibility(View.GONE);
+            viewHolder.imageFrameLayout.setVisibility(View.GONE);
         } else {
-            viewHolder.imageView.setVisibility(View.VISIBLE);
+            viewHolder.imageFrameLayout.setVisibility(View.VISIBLE);
             GApplication appState = (GApplication) mActivity.getApplication();
             viewHolder.imageView.setImageUrl(entry.getImgURL(),
                     appState.mImageLoader);
@@ -76,6 +77,7 @@ public class PostAdapter extends ArrayAdapter<Post> {
         public TextView timeView;
         public TextView idView;
         public TextView bodyView;
+        public FrameLayout imageFrameLayout;
         public NetworkImageView imageView;
     }
 
@@ -96,6 +98,8 @@ public class PostAdapter extends ArrayAdapter<Post> {
                     .findViewById(R.id.post_id);
             viewHolder.bodyView = (TextView) workingView
                     .findViewById(R.id.post_body);
+            viewHolder.imageFrameLayout = (FrameLayout) workingView
+                    .findViewById(R.id.post_img_frame);
             viewHolder.imageView = (NetworkImageView) workingView
                     .findViewById(R.id.post_img);
 
