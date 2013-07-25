@@ -48,7 +48,7 @@ public class BoardFragment extends ListFragment implements View.OnTouchListener 
         }
     }
 
-    private boolean isImagePress(View v, MotionEvent ev) {
+    public static boolean isImagePress(View v, MotionEvent ev) {
         ImageView imageView = (ImageView) v.findViewById(R.id.post_img);
         int imgWidth = imageView.getWidth();
         return ev.getX() < imgWidth;
@@ -79,12 +79,11 @@ public class BoardFragment extends ListFragment implements View.OnTouchListener 
                 }
                 mDownX = event.getX();
 
-                if (isImagePress(v, event)) {
-                    mIsImagePress = true;
+                mIsImagePress = isImagePress(v, event);
+                if (mIsImagePress) {
                     imageFrameLayout = (FrameLayout) v.findViewById(R.id.post_img_frame);
                     imageFrameLayout.setForeground(getResources().getDrawable(R.color.image_foreground));
                 } else {
-                    mIsImagePress = false;
                     v.setBackgroundResource(android.R.color.holo_blue_dark);
                 }
                 break;
